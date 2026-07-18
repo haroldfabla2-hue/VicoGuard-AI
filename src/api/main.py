@@ -58,6 +58,7 @@ load_dotenv()  # fallback cwd
 from scanner.services.security_scanner import SecurityScanner
 from scanner.services.ai_engine import analyze_scan_results, correlate_server_logs
 from scanner.services.notifications import NotificationDispatcher
+from scanner.services.glm_team_client import run_team_analysis
 from scanner.services.cognitive_brain import (
     CognitiveSecurityBrain,
     ThreatSeverity,
@@ -128,6 +129,14 @@ class ScanRequest(BaseModel):
     branch: Optional[str] = "main"
     notify: Optional[bool] = True
     channels: Optional[list] = ["telegram"]
+    use_agent_team: Optional[bool] = False
+    """Si True, usa el equipo de 3 agentes (SecOps Auditor, Threat Analyst,
+    Remediation Architect -- ver scanner/services/agent_team.py) via el
+    endpoint GLM Coding Plan de Z.ai, en vez de la llamada única a
+    analyze_scan_results(). Default False porque el equipo completo tarda
+    ~140s (confirmado en verificación real) contra unos pocos segundos de
+    la llamada única -- dejalo en True solo cuando el pitch necesita
+    mostrar los 3 roles actuando, no como comportamiento por defecto."""
 
 
 class TelemetryRequest(BaseModel):
@@ -352,6 +361,49 @@ def _run_scan_pipeline(ctx: UserContext, scan_id: str, request: ScanRequest) -> 
                     "remediation_command": brain_record.remediation_command,
                 }
             source = "causal_cache"
+        elif request.use_agent_team:
+            _append_event(scan_id, "REASONING", "Convocando equipo de 3 agentes (Auditor/Analista/Arquitecto)...", "THREAT")
+            try:
+                team_result = run_team_analysis(scan_results)
+                score = max(
+                    0,
+                    100
+                    - (scan_results["critical_count"] * 25)
+                    - (scan_results["high_count"] * 15),
+                )
+                protocols = (team_result.get("remediation") or {}).get("protocols") or []
+                ai_analysis = {
+                    "security_score": score,
+                    "summary": team_result.get("final_telegram_message")
+                    or f"Equipo de agentes ({', '.join(team_result.get('agents_used', []))}) completó el análisis.",
+                    "findings": scan_results["findings"],
+                    "remediation_command": (protocols[0].get("plain_language") if protocols else None)
+                    or "# Ver hallazgos en /ui/dashboard",
+                    "agent_team_result": team_result,
+                }
+                source = "agent_team"
+                _append_event(
+                    scan_id, "OK",
+                    f"Equipo completó en {team_result.get('total_pipeline_seconds', '?')}s "
+                    f"(roles: {', '.join(team_result.get('agents_used', []))})",
+                    "THREAT",
+                )
+            except Exception as e:
+                ai_analysis = {
+                    "security_score": max(
+                        0,
+                        100
+                        - (scan_results["critical_count"] * 25)
+                        - (scan_results["high_count"] * 15),
+                    ),
+                    "summary": (
+                        f"Escaneo completado. Se encontraron "
+                        f"{scan_results['total_findings']} hallazgos."
+                    ),
+                    "findings": scan_results["findings"],
+                    "ai_error": str(e),
+                }
+                source = "fallback"
         else:
             _append_event(ctx, scan_id, "REASONING", "Correlacionando hallazgos con GPT-4o...", "THREAT")
             try:

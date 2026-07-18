@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Red WASP — Dashboard</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-surface": "#e2e2e9",
+            "on-surface-variant": "#bbcabf",
+            "surface": "#111319",
+            "surface-container-lowest": "#0c0e13",
+            "surface-container-low": "#191b21",
+            "surface-container": "#1e1f25",
+            "surface-container-high": "#282a30",
+            "outline": "#86948a",
+            "outline-variant": "#3c4a42",
+            "primary": "#4edea3",
+            "primary-container": "#10b981",
+            "on-primary": "#003824",
+            "secondary": "#d0bcff",
+            "secondary-container": "#571bc1",
+            "tertiary": "#ffb95f",
+            "tertiary-container": "#e29100",
+            "error": "#ffb4ab",
+            "error-container": "#93000a",
+            "crimson-danger": "#f43f5e"
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"]
+          },
+          spacing: {
+            xs: "4px",
+            sm: "8px",
+            md: "16px",
+            lg: "24px",
+            xl: "40px",
+            "margin-mobile": "16px",
+            "margin-desktop": "32px"
+          }
+        }
+      }
+    };
+  </script>
+
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body class="min-h-screen relative overflow-x-hidden font-sans text-on-surface">
+  <!-- Ambient background blobs (purely decorative, same language as VicoGuard) -->
+  <div class="ambient-blob ambient-blob-1" aria-hidden="true"></div>
+  <div class="ambient-blob ambient-blob-2" aria-hidden="true"></div>
+
+  <div class="relative z-10 max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-lg">
+
+    <!-- Topbar -->
+    <header class="flex flex-wrap items-center justify-between gap-md mb-lg pb-md border-b border-white/10">
+      <div class="flex items-center gap-sm">
+        <span class="material-symbols-outlined text-primary text-3xl" aria-hidden="true">hive</span>
+        <h1 class="text-2xl font-bold text-on-surface tracking-tight">WASP — Red de Centinelas</h1>
+      </div>
+
+      <div class="flex items-center gap-sm">
+        <span id="node-count-badge" class="glass-panel rounded-full px-md py-xs flex items-center gap-sm font-mono text-xs text-on-surface-variant">
+          <span id="node-count-dot" class="w-2 h-2 rounded-full bg-outline"></span>
+          <span id="node-count-text">0 nodos activos</span>
+        </span>
+
+        <span id="connection-status" class="glass-panel rounded-full px-md py-xs flex items-center gap-sm font-mono text-xs text-on-surface-variant">
+          <span id="connection-dot" class="w-2 h-2 rounded-full bg-outline"></span>
+          <span id="connection-text">Conectando…</span>
+        </span>
+      </div>
+    </header>
+
+    <!-- Node grid -->
+    <main id="nodes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+    </main>
+
+    <!-- Empty state -->
+    <p id="empty-state" class="hidden text-center text-on-surface-variant text-base mt-xl max-w-md mx-auto leading-relaxed">
+      Esperando el primer nodo… instalá WASP en otro equipo y aparece acá en vivo.
+    </p>
+  </div>
+
+  <script src="/static/dashboard.js"></script>
+</body>
+</html>

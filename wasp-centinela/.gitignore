@@ -1,0 +1,21 @@
+# Entorno
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Caché local de herramientas (Claude Code skill-registry), no es del proyecto
+.atl/
+
+# Secretos — nunca versionar
+.env
+
+# Binarios descargados (se re-descargan en Fase 0, no hace falta versionarlos)
+bin/*.exe
+bin/*.zip
+
+# Datos de runtime (ledger, salidas de escaneo) — se regeneran, no son código fuente
+centinela/data/
+tests/fixtures/*.json
+tests/fixtures/vuln_sample_repo/app.db
+tests/fixtures/vuln_sample_repo/__pycache__/

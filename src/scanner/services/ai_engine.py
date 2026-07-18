@@ -12,9 +12,19 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Auto-detect client provider: Gemini vs OpenAI
+# Auto-detect client provider: Gemini vs OpenAI. Lazy on purpose -- this
+# used to build the OpenAI() client at import time, which raised
+# OpenAIError and crashed the whole FastAPI app (including the static UI
+# routes that don't need AI at all) on any machine/session that doesn't
+# have OPENAI_API_KEY set, even if the team is actually using a different
+# provider (e.g. GLM/Z.ai) for other parts of the project. Now the app can
+# always start; only the two functions that actually call the LLM raise a
+# clear error, and only when called without credentials.
 openai_key = os.getenv("OPENAI_API_KEY")
 gemini_key = os.getenv("GEMINI_API_KEY")
+
+client = None
+DEFAULT_MODEL = None
 
 if gemini_key:
     client = OpenAI(
@@ -22,9 +32,17 @@ if gemini_key:
         base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
     )
     DEFAULT_MODEL = "gemini-1.5-flash"
-else:
+elif openai_key:
     client = OpenAI(api_key=openai_key)
     DEFAULT_MODEL = "gpt-4o"
+
+
+def _require_client() -> None:
+    if client is None:
+        raise RuntimeError(
+            "No AI provider configured: set OPENAI_API_KEY or GEMINI_API_KEY "
+            "in .env before calling analyze_scan_results/correlate_server_logs."
+        )
 
 # --- System Prompts (copiados de 7_AI_SYSTEM_PROMPTS.md) ---
 SYSTEM_PROMPT_SCAN_ANALYSIS = """

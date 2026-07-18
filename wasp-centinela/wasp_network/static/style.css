@@ -1,0 +1,166 @@
+/* WASP Network dashboard — "Obsidian Stealth" design system, ported from
+   VicoGuard-AI (see ui_stitch/threat_dashboard_vicoguard_ai/code.html).
+   Tailwind (CDN) handles layout/utility classes; this file covers the pieces
+   Tailwind's utility set can't express directly: glassmorphism, ambient
+   blobs, glow effects and severity accents. */
+
+body {
+  background-color: #080A0F;
+  color: #e2e2e9;
+}
+
+/* Glass panel — base surface for every card/badge in this dashboard. */
+.glass-panel {
+  background-color: rgba(22, 28, 40, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+}
+
+/* Ambient background blobs — subtle depth, no distraction. */
+.ambient-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(120px);
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ambient-blob-1 {
+  top: -10%;
+  left: -5%;
+  width: 40vw;
+  height: 40vw;
+  background: radial-gradient(circle, #4edea3 0%, transparent 70%);
+}
+
+.ambient-blob-2 {
+  bottom: -15%;
+  right: -10%;
+  width: 45vw;
+  height: 45vw;
+  background: radial-gradient(circle, #571bc1 0%, transparent 70%);
+}
+
+/* Node card */
+.node-card {
+  position: relative;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top-width: 3px;
+  border-top-style: solid;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.node-card--severity-critical {
+  border-top-color: #f43f5e;
+}
+
+.node-card--severity-high {
+  border-top-color: #ffb95f;
+}
+
+.node-card--severity-clear {
+  border-top-color: #4edea3;
+}
+
+.node-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.node-card__title {
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 24px;
+  color: #e2e2e9;
+  overflow-wrap: anywhere;
+}
+
+.node-card__timestamp {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  color: #bbcabf;
+}
+
+/* KPI tiles */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.kpi-tile {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kpi-tile__label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #bbcabf;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kpi-tile__value {
+  font-family: "Inter", sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1;
+}
+
+/* Denied-actions badge — WASP-specific (agent governance), no VicoGuard
+   equivalent. Same pill language as VicoGuard's finding-severity badges. */
+.denied-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  font-weight: 500;
+  background: #571bc122;
+  border: 1px solid #571bc155;
+  color: #d0bcff;
+}
+
+/* Connection / node-count status dots */
+.dot-glow-live {
+  background: #4edea3;
+  box-shadow: 0 0 8px rgba(78, 222, 163, 0.8);
+}
+
+.dot-glow-error {
+  background: #f43f5e;
+  box-shadow: 0 0 8px rgba(244, 63, 94, 0.8);
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.dot-pulse {
+  animation: pulse-dot 1.6s ease-in-out infinite;
+}
