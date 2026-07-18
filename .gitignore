@@ -1,0 +1,18 @@
+# Entorno
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Secretos — nunca versionar
+.env
+
+# Binarios descargados (se re-descargan en Fase 0, no hace falta versionarlos)
+bin/*.exe
+bin/*.zip
+
+# Datos de runtime (ledger, salidas de escaneo) — se regeneran, no son código fuente
+centinela/data/
+tests/fixtures/*.json
+tests/fixtures/vuln_sample_repo/app.db
+tests/fixtures/vuln_sample_repo/__pycache__/

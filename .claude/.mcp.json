@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "wasp-governor": {
+      "command": "E:\\PROYECTOS_JADEN\\10_Hackatones\\PROYECTO INVESTIGACION\\wasp\\.venv\\Scripts\\python.exe",
+      "args": [
+        "E:\\PROYECTOS_JADEN\\10_Hackatones\\PROYECTO INVESTIGACION\\wasp\\centinela\\guards\\governance_guard\\mcp_governor_server.py"
+      ]
+    }
+  }
+}
