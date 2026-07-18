@@ -17,10 +17,16 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from sse_starlette.sse import EventSourceResponse
 
+from centinela.ledger import hash_chain
 from wasp_network import store
 from wasp_network.models import NodeSummary
 
 STATIC_DIR = Path(__file__).parent / "static"
+
+# Local node's own audit ledger. Exposed read-only via /ledger for the
+# operator's dashboard — this data never crosses /ingest (the wire format
+# between teams stays anonymized aggregates only, see models.py).
+LOCAL_LEDGER_PATH = Path(__file__).parent.parent / "centinela" / "data" / "ledger.jsonl"
 
 app = FastAPI(title="WASP Network")
 
@@ -73,6 +79,46 @@ async def events(request: Request):
             _subscribers.discard(queue)
 
     return EventSourceResponse(event_generator())
+
+
+def _trim_entry(entry: dict) -> dict:
+    """Flatten a ledger entry for display, dropping the bulky `raw` scanner
+    output but keeping the evidence (file, line, message, rule_id) and the
+    hash-chain fields (hash, prev_hash)."""
+    data = entry.get("data", {})
+    return {
+        "index": entry.get("index"),
+        "ts": entry.get("ts"),
+        "type": entry.get("type"),
+        "hash": entry.get("hash"),
+        "prev_hash": entry.get("prev_hash"),
+        "severity": data.get("severity"),
+        "rule_id": data.get("rule_id"),
+        "file": data.get("file"),
+        "line": data.get("line"),
+        "message": data.get("message"),
+        "source": data.get("source"),
+    }
+
+
+@app.get("/ledger")
+async def ledger(limit: int = 50):
+    """LOCAL-ONLY evidence view: this node's own hash-chained audit ledger
+    (findings with file/line/rule evidence + chain integrity status).
+
+    This endpoint serves the node operator's own dashboard on their own
+    machine. It is NOT part of the federated network API — nothing here is
+    ever shared with other teams; /ingest keeps carrying anonymized
+    aggregates only."""
+    limit = max(1, min(limit, 500))
+    ledger_path = str(LOCAL_LEDGER_PATH)
+    entries = hash_chain.read_entries(ledger_path=ledger_path)
+    trimmed = [_trim_entry(e) for e in entries[-limit:]][::-1]  # newest first
+    return {
+        "chain_valid": hash_chain.verify_chain(ledger_path=ledger_path),
+        "total_entries": len(entries),
+        "entries": trimmed,
+    }
 
 
 @app.get("/")

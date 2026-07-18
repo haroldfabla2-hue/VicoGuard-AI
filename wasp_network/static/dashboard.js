@@ -145,6 +145,7 @@ function connect() {
     try {
       const nodes = JSON.parse(event.data);
       renderNodes(nodes);
+      fetchLedger();
     } catch (err) {
       console.error("WASP Network: failed to parse update", err);
     }
@@ -156,3 +157,117 @@ function connect() {
 }
 
 connect();
+
+/* ------------------------------------------------------------------ */
+/* Local node evidence: findings + SHA-256 hash chain                  */
+/* Data comes from GET /ledger (this node's own audit ledger, local    */
+/* only — never federated). Refreshed on every SSE update and polled   */
+/* as a fallback so scans appear even without a publish.               */
+/* ------------------------------------------------------------------ */
+
+const findingsList = document.getElementById("findings-list");
+const hashchainList = document.getElementById("hashchain-list");
+const chainDot = document.getElementById("chain-dot");
+const chainText = document.getElementById("chain-text");
+const ledgerCountBadge = document.getElementById("ledger-count-badge");
+
+let lastLedgerSignature = null;
+
+const TYPE_META = {
+  finding: { label: "finding", color: "#4edea3" },
+  attack: { label: "attack", color: "#ffb95f" },
+  consent: { label: "consent", color: "#d0bcff" },
+  denied: { label: "denied", color: "#f43f5e" },
+};
+
+function shortHash(hash) {
+  if (!hash) return "";
+  return `${hash.slice(0, 10)}…${hash.slice(-6)}`;
+}
+
+function renderChainBadge(valid) {
+  if (valid) {
+    chainText.textContent = "Cadena íntegra ✓";
+    chainDot.className = "w-2 h-2 rounded-full dot-glow-live";
+  } else {
+    chainText.textContent = "Cadena ROTA ✗";
+    chainDot.className = "w-2 h-2 rounded-full dot-glow-error dot-pulse";
+  }
+}
+
+function renderFinding(entry) {
+  const sev = entry.severity || "low";
+  const meta = SEVERITY_META[sev] || SEVERITY_META.low;
+  const location = entry.file ? `${escapeHtml(entry.file)}:${entry.line ?? "?"}` : "";
+  const rule = entry.rule_id ? escapeHtml(entry.rule_id) : escapeHtml(entry.type || "");
+
+  return `
+    <article class="evidence-row glass-panel">
+      <div class="flex items-center justify-between gap-sm">
+        <span class="sev-chip" style="color:${meta.color};border-color:${meta.color}55;background:${meta.color}18">
+          <span class="w-2 h-2 rounded-full" style="background:${meta.color}"></span>
+          ${meta.label}
+        </span>
+        <span class="font-mono text-xs text-on-surface-variant">${formatTimestamp(entry.ts)}</span>
+      </div>
+      <p class="font-mono text-xs text-secondary overflow-wrap-anywhere">${rule}</p>
+      <p class="text-sm text-on-surface leading-snug evidence-message" title="${escapeHtml(entry.message || "")}">${escapeHtml(entry.message || "")}</p>
+      <p class="font-mono text-xs text-on-surface-variant overflow-wrap-anywhere">${location}</p>
+    </article>
+  `;
+}
+
+function renderHashEntry(entry) {
+  const typeMeta = TYPE_META[entry.type] || { label: entry.type || "?", color: "#bbcabf" };
+
+  return `
+    <article class="evidence-row glass-panel">
+      <div class="flex items-center justify-between gap-sm">
+        <span class="font-mono text-xs font-semibold text-on-surface">#${entry.index}</span>
+        <span class="type-chip" style="color:${typeMeta.color};border-color:${typeMeta.color}55;background:${typeMeta.color}18">${escapeHtml(typeMeta.label)}</span>
+        <span class="font-mono text-xs text-on-surface-variant">${formatTimestamp(entry.ts)}</span>
+      </div>
+      <div class="hash-lines font-mono text-xs">
+        <div class="flex gap-sm"><span class="text-on-surface-variant shrink-0">hash&nbsp;&nbsp;&nbsp;</span><span class="text-primary overflow-wrap-anywhere" title="${escapeHtml(entry.hash || "")}">${escapeHtml(shortHash(entry.hash))}</span></div>
+        <div class="flex gap-sm"><span class="text-on-surface-variant shrink-0">prev&nbsp;&nbsp;&nbsp;</span><span class="text-on-surface-variant overflow-wrap-anywhere" title="${escapeHtml(entry.prev_hash || "")}">${escapeHtml(shortHash(entry.prev_hash))}</span></div>
+      </div>
+    </article>
+  `;
+}
+
+function renderLedger(data) {
+  renderChainBadge(data.chain_valid);
+  ledgerCountBadge.textContent = `${data.total_entries} entrada${data.total_entries === 1 ? "" : "s"}`;
+
+  const entries = Array.isArray(data.entries) ? data.entries : [];
+  const findings = entries.filter((e) => e.type === "finding");
+
+  findingsList.innerHTML = findings.length
+    ? findings.map(renderFinding).join("")
+    : `<p class="text-on-surface-variant text-sm">Sin hallazgos todavía — ejecutá un escaneo.</p>`;
+
+  hashchainList.innerHTML = entries.length
+    ? entries.map(renderHashEntry).join("")
+    : `<p class="text-on-surface-variant text-sm">Ledger vacío.</p>`;
+}
+
+async function fetchLedger() {
+  try {
+    const res = await fetch("/ledger?limit=60");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    // Skip re-render when nothing changed (cheap signature: count + head hash).
+    const head = data.entries && data.entries[0] ? data.entries[0].hash : "";
+    const signature = `${data.total_entries}:${head}:${data.chain_valid}`;
+    if (signature === lastLedgerSignature) return;
+    lastLedgerSignature = signature;
+
+    renderLedger(data);
+  } catch (err) {
+    console.error("WASP ledger: failed to fetch", err);
+  }
+}
+
+fetchLedger();
+setInterval(fetchLedger, 5000);

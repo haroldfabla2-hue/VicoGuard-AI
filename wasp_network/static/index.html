@@ -92,6 +92,38 @@
     <p id="empty-state" class="hidden text-center text-on-surface-variant text-base mt-xl max-w-md mx-auto leading-relaxed">
       Esperando el primer nodo… instalá WASP en otro equipo y aparece acá en vivo.
     </p>
+
+    <!-- Local node evidence: hash chain + findings (this operator's own ledger, never federated) -->
+    <section class="mt-xl">
+      <div class="flex flex-wrap items-center justify-between gap-md mb-md">
+        <div class="flex items-center gap-sm">
+          <span class="material-symbols-outlined text-secondary text-2xl" aria-hidden="true">receipt_long</span>
+          <h2 class="text-xl font-bold text-on-surface tracking-tight">Nodo local — evidencia y cadena de hashes</h2>
+        </div>
+
+        <div class="flex items-center gap-sm">
+          <span id="chain-badge" class="glass-panel rounded-full px-md py-xs flex items-center gap-sm font-mono text-xs text-on-surface-variant">
+            <span id="chain-dot" class="w-2 h-2 rounded-full bg-outline"></span>
+            <span id="chain-text">Verificando cadena…</span>
+          </span>
+          <span id="ledger-count-badge" class="glass-panel rounded-full px-md py-xs font-mono text-xs text-on-surface-variant">
+            0 entradas
+          </span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-lg">
+        <div>
+          <h3 class="font-mono text-xs uppercase tracking-wider text-on-surface-variant mb-sm">Hallazgos — evidencia</h3>
+          <div id="findings-list" class="evidence-list"></div>
+        </div>
+
+        <div>
+          <h3 class="font-mono text-xs uppercase tracking-wider text-on-surface-variant mb-sm">Hash chain SHA-256 (audit ledger)</h3>
+          <div id="hashchain-list" class="evidence-list"></div>
+        </div>
+      </div>
+    </section>
   </div>
 
   <script src="/static/dashboard.js"></script>
