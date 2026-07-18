@@ -131,11 +131,15 @@ class TelegramNotifier:
             result = response.json()
         return result
 
-    def answer_callback(self, callback_query_id: str, text: str) -> dict:
-        """Responde a un callback de botón inline (quita el spinner)."""
-        if not self.bot_token:
+    def answer_callback(self, callback_query_id: str, text: str, bot_token: str = None) -> dict:
+        """Responde a un callback de botón inline (quita el spinner).
+
+        Usa el token del tenant si se provee (bots por-usuario); si no, el global.
+        """
+        token = bot_token or self.bot_token
+        if not token:
             return {"ok": False}
-        url = f"{self.api_url}/answerCallbackQuery"
+        url = f"https://api.telegram.org/bot{token}/answerCallbackQuery"
         response = requests.post(
             url,
             json={"callback_query_id": callback_query_id, "text": text, "show_alert": False},

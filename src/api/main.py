@@ -71,12 +71,17 @@ from api.tenancy import TenancyManager, UserContext
 # App Setup
 # ============================================================
 
+# Swagger/OpenAPI deshabilitado por defecto (endurecimiento prod). Habilitar con
+# VG_ENABLE_DOCS=1 en desarrollo.
+_ENABLE_DOCS = os.getenv("VG_ENABLE_DOCS", "0") == "1"
+
 app = FastAPI(
     title="VicoGuard AI",
     description="Agente Autónomo de Ciberseguridad para Pymes — API REST",
     version="2.0.0-hackathon",
-    docs_url="/docs",
-    redoc_url="/redoc",
+    docs_url="/docs" if _ENABLE_DOCS else None,
+    redoc_url="/redoc" if _ENABLE_DOCS else None,
+    openapi_url="/openapi.json" if _ENABLE_DOCS else None,
 )
 
 # Cookies de sesión: same-origin (la UI se sirve desde este mismo host).
@@ -88,6 +93,34 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    """Cabeceras de seguridad en TODA respuesta (el propio scanner las exige)."""
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    # Nota: ocultar `Server: uvicorn` se hace en el proxy (Caddy `header -Server`)
+    # o corriendo uvicorn con --no-server-header; setearlo aquí duplicaría la cabecera.
+    # HSTS solo cuando la petición llegó por HTTPS (directa o detrás del proxy)
+    proto = request.headers.get("x-forwarded-proto", request.url.scheme)
+    if proto == "https":
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    # CSP: self + Google Fonts (usadas por la UI). 'unsafe-inline' necesario por los
+    # <script>/<style> inline de las páginas de auth y del dashboard.
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "img-src 'self' data:; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "script-src 'self' 'unsafe-inline'; "
+        "connect-src 'self'; "
+        "frame-ancestors 'none'; base-uri 'self'"
+    )
+    return response
 
 # Servicios globales (NO contienen datos de usuarios de seguridad)
 dispatcher = NotificationDispatcher()
@@ -158,6 +191,13 @@ class SettingsRequest(BaseModel):
     telegram_chat_id: Optional[str] = None
 
 
+class RemediationSendRequest(BaseModel):
+    """Enviar remediación(es) del último scan al Telegram del usuario."""
+    scan_id: Optional[str] = None
+    finding_index: Optional[int] = None  # None + all=False -> primer hallazgo
+    send_all: Optional[bool] = False
+
+
 # ============================================================
 # Autenticación — dependencias
 # ============================================================
@@ -174,13 +214,19 @@ def require_user(request: Request) -> User:
     return user
 
 
-def _set_session_cookie(response: Response, token: str):
+def _set_session_cookie(response: Response, token: str, request: Request = None):
+    # Secure automático cuando la petición llegó por HTTPS (directa o vía proxy).
+    secure = COOKIE_SECURE
+    if request is not None:
+        proto = request.headers.get("x-forwarded-proto", request.url.scheme)
+        if proto == "https":
+            secure = True
     response.set_cookie(
         key=SESSION_COOKIE,
         value=token,
         httponly=True,
         samesite="lax",
-        secure=COOKIE_SECURE,
+        secure=secure,
         max_age=7 * 24 * 3600,
         path="/",
     )
@@ -526,7 +572,7 @@ async def register(req: RegisterRequest, request: Request, response: Response):
     except AuthError as e:
         raise HTTPException(status_code=400, detail=e.message)
     token = auth_service.create_session(user.id, request.headers.get("user-agent", ""))
-    _set_session_cookie(response, token)
+    _set_session_cookie(response, token, request)
     tenants.get(user.id)  # provisiona la BD aislada del usuario
     return {"status": "ok", "user": _user_public(user)}
 
@@ -538,7 +584,7 @@ async def login(req: LoginRequest, request: Request, response: Response):
     except AuthError as e:
         raise HTTPException(status_code=401, detail=e.message)
     token = auth_service.create_session(user.id, request.headers.get("user-agent", ""))
-    _set_session_cookie(response, token)
+    _set_session_cookie(response, token, request)
     return {"status": "ok", "user": _user_public(user)}
 
 
@@ -761,6 +807,282 @@ async def update_settings(request: SettingsRequest, user: User = Depends(require
     return {"status": "ok", "message": "Configuración guardada exitosamente."}
 
 
+@app.post("/api/v1/settings/test")
+async def test_telegram(user: User = Depends(require_user)):
+    """Envía un mensaje de prueba al Telegram del usuario para validar su config."""
+    ctx = tenants.get(user.id)
+    bot_token = ctx.get_setting("telegram_bot_token")
+    chat_id = ctx.get_setting("telegram_chat_id")
+    if not bot_token or not chat_id:
+        raise HTTPException(status_code=400, detail="Configura tu bot token y chat ID primero.")
+    res = dispatcher.telegram._send_message(
+        "✅ *VicoGuard AI* — conexión verificada.\nAquí recibirás tus alertas de seguridad "
+        "y remediaciones. _Powered by VicoGuard AI 🛡️_",
+        bot_token=bot_token, chat_id=chat_id,
+    )
+    if not res.get("ok"):
+        raise HTTPException(status_code=400,
+                            detail=f"Telegram rechazó el mensaje: {res.get('description') or res.get('error')}")
+    return {"status": "ok", "message": "Mensaje de prueba enviado a tu Telegram."}
+
+
+# ============================================================
+# Endpoints — Topología del scan (grafo canónico)
+# ============================================================
+
+@app.get("/api/v1/brain/graph")
+async def get_brain_graph(user: User = Depends(require_user)):
+    """Grafo de topología: qué se escaneó y cómo se relaciona (aislado por usuario)."""
+    ctx = tenants.get(user.id)
+    graph = ctx.canonical.get_graph()
+    return {"status": "ok", **graph, "dedup": ctx.canonical.get_stats()}
+
+
+# ============================================================
+# Endpoints — Envío de remediación (dashboard -> Telegram)
+# ============================================================
+
+def _remediation_of(finding: dict) -> str:
+    return (finding.get("remediation_code")
+            or "\n".join(finding.get("remediation_steps", []) or [])
+            or "Revisa el hallazgo en el panel de VicoGuard.")
+
+
+@app.post("/api/v1/remediation/send")
+async def send_remediation(req: RemediationSendRequest, user: User = Depends(require_user)):
+    """Envía la remediación de un hallazgo (o todas) al Telegram del usuario."""
+    ctx = tenants.get(user.id)
+    bot_token = ctx.get_setting("telegram_bot_token")
+    chat_id = ctx.get_setting("telegram_chat_id")
+    if not bot_token or not chat_id:
+        raise HTTPException(status_code=400,
+                            detail="Configura tu Telegram en Ajustes antes de enviar remediaciones.")
+
+    result = None
+    if req.scan_id:
+        result = (ctx.scan_jobs.get(req.scan_id) or {}).get("result")
+    if not result:
+        result = ctx.latest_scan
+    if not result:
+        raise HTTPException(status_code=404, detail="No hay un escaneo del cual enviar remediación.")
+
+    findings = result.get("findings", []) or []
+    if not findings:
+        raise HTTPException(status_code=404, detail="El escaneo no tiene hallazgos.")
+
+    target = result.get("target_url", "")
+    if req.send_all:
+        lines = [f"🛠️ *Plan de remediación — VicoGuard AI*", f"Target: `{target}`", ""]
+        for f in findings[:10]:
+            sev = f.get("severity", "?")
+            title = f.get("title_business") or f.get("title_technical") or "Hallazgo"
+            lines.append(f"*[{sev}]* {title}")
+            code = _remediation_of(f)
+            lines.append(f"```\n{code[:500]}\n```")
+        lines.append("\n_Powered by VicoGuard AI 🛡️_")
+        message = "\n".join(lines)
+        sent_count = min(len(findings), 10)
+    else:
+        idx = req.finding_index if req.finding_index is not None else 0
+        if idx < 0 or idx >= len(findings):
+            raise HTTPException(status_code=400, detail="Índice de hallazgo inválido.")
+        f = findings[idx]
+        sev = f.get("severity", "?")
+        title = f.get("title_business") or f.get("title_technical") or "Hallazgo"
+        message = (f"🛠️ *Remediación — VicoGuard AI*\nTarget: `{target}`\n\n"
+                   f"*[{sev}]* {title}\n")
+        if f.get("analogy"):
+            message += f"💡 _{f['analogy']}_\n"
+        message += f"\n*Solución:*\n```\n{_remediation_of(f)[:900]}\n```\n\n_Powered by VicoGuard AI 🛡️_"
+        sent_count = 1
+
+    res = dispatcher.telegram._send_message(message, bot_token=bot_token, chat_id=chat_id)
+    if not res.get("ok"):
+        raise HTTPException(status_code=400,
+                            detail=f"Telegram rechazó el mensaje: {res.get('description') or res.get('error')}")
+    return {"status": "ok", "sent": sent_count, "message": "Remediación enviada a tu Telegram."}
+
+
+# ============================================================
+# Reporte — generador HTML self-contained (imprimible a PDF)
+# ============================================================
+
+def _report_escape(s) -> str:
+    s = "" if s is None else str(s)
+    return (s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            .replace('"', "&quot;"))
+
+
+def _build_report_html(user: User, result: dict, brain_stats: dict, canonical_stats: dict) -> str:
+    """Genera un reporte ejecutivo de seguridad (HTML self-contained, print->PDF)."""
+    try:
+        score = int(result.get("security_score", 0))
+    except (TypeError, ValueError):
+        score = 0
+    raw = result.get("scan_raw", {}) or {}
+    findings = result.get("findings", []) or []
+    company = _report_escape(user.company or user.full_name or user.email)
+    target = _report_escape(result.get("target_url", ""))
+    summary = _report_escape(result.get("summary", ""))
+    gen = datetime.now().strftime("%d/%m/%Y %H:%M")
+    accent = "#46D3A0" if score >= 80 else "#F4C24E" if score >= 50 else "#FF6B6B"
+    risk = "Riesgo bajo" if score >= 80 else "Riesgo medio" if score >= 50 else "Riesgo crítico"
+    circ = 327
+    dash = circ - (score / 100) * circ
+
+    sev_colors = {"CRITICAL": "#FF6B6B", "HIGH": "#FF9145", "MEDIUM": "#F4C24E", "LOW": "#7FB0FF"}
+    rows = []
+    for f in findings:
+        sev = str(f.get("severity", "INFO")).upper()
+        color = sev_colors.get(sev, "#94A3B8")
+        title = _report_escape(f.get("title_business") or f.get("title_technical") or "Hallazgo")
+        code = _report_escape(_remediation_of(f))
+        analogy = _report_escape(f.get("analogy") or "")
+        rows.append(f"""
+        <tr>
+          <td><span class="sev" style="color:{color};border-color:{color}">{sev}</span></td>
+          <td>
+            <div class="ftitle">{title}</div>
+            {f'<div class="fanalogy">💡 {analogy}</div>' if analogy else ''}
+            <pre>{code}</pre>
+          </td>
+        </tr>""")
+    rows_html = "".join(rows) or '<tr><td colspan="2" class="empty">Sin hallazgos.</td></tr>'
+
+    return f"""<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Reporte de Seguridad · {company} · VicoGuard AI</title>
+<style>
+  :root {{ --ink:#0f141b; --mut:#5b6472; --line:#e4e7ec; --accent:{accent}; }}
+  * {{ box-sizing:border-box; }}
+  body {{ font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink);
+          background:#f6f7f9; margin:0; line-height:1.55; }}
+  .sheet {{ max-width:820px; margin:24px auto; background:#fff; border:1px solid var(--line);
+            border-radius:14px; overflow:hidden; }}
+  .top {{ display:flex; justify-content:space-between; align-items:center; padding:22px 32px;
+          border-bottom:1px solid var(--line); }}
+  .brand {{ display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:-.02em; }}
+  .brand .m {{ width:28px; height:28px; border-radius:7px; background:linear-gradient(155deg,#6EA0FF,#3A6DEB);
+               color:#08122b; display:grid; place-items:center; font-weight:800; }}
+  .brand small {{ color:var(--mut); font-weight:500; }}
+  .toolbar {{ text-align:right; }}
+  .btn {{ font:inherit; font-size:13px; padding:8px 14px; border:1px solid var(--line); background:#fff;
+          border-radius:8px; cursor:pointer; }}
+  .btn.primary {{ background:#111827; color:#fff; border-color:#111827; }}
+  .hero {{ display:flex; gap:28px; align-items:center; padding:28px 32px; border-bottom:1px solid var(--line); }}
+  .ring {{ position:relative; width:120px; height:120px; flex:none; }}
+  .ring svg {{ transform:rotate(-90deg); }}
+  .ring .n {{ position:absolute; inset:0; display:grid; place-items:center; font-size:34px; font-weight:800;
+              color:var(--accent); }}
+  .meta h1 {{ margin:0 0 4px; font-size:22px; letter-spacing:-.02em; }}
+  .meta .risk {{ display:inline-block; font-size:12px; font-weight:700; color:var(--accent);
+                 border:1px solid var(--accent); border-radius:999px; padding:2px 10px; }}
+  .meta .kv {{ color:var(--mut); font-size:13px; margin-top:8px; }}
+  .kv b {{ color:var(--ink); font-weight:600; }}
+  .grid {{ display:grid; grid-template-columns:repeat(4,1fr); gap:0; border-bottom:1px solid var(--line); }}
+  .cell {{ padding:18px 20px; border-right:1px solid var(--line); }}
+  .cell:last-child {{ border-right:none; }}
+  .cell .l {{ font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--mut); font-weight:700; }}
+  .cell .v {{ font-size:26px; font-weight:800; margin-top:4px; }}
+  section {{ padding:24px 32px; }}
+  h2 {{ font-size:14px; text-transform:uppercase; letter-spacing:.06em; color:var(--mut); margin:0 0 14px; }}
+  .summary {{ font-size:15px; }}
+  table {{ width:100%; border-collapse:collapse; }}
+  td {{ padding:14px 0; border-top:1px solid var(--line); vertical-align:top; }}
+  td:first-child {{ width:96px; }}
+  .sev {{ font-size:11px; font-weight:800; border:1px solid; border-radius:999px; padding:2px 9px; }}
+  .ftitle {{ font-weight:650; }}
+  .fanalogy {{ color:var(--mut); font-size:13px; margin-top:3px; }}
+  pre {{ background:#0b0e13; color:#bfe3d3; border-radius:8px; padding:11px 13px; overflow-x:auto;
+         font-family:"SF Mono",Consolas,monospace; font-size:12px; margin:10px 0 0; white-space:pre-wrap; }}
+  .foot {{ padding:18px 32px; color:var(--mut); font-size:12px; border-top:1px solid var(--line);
+           display:flex; justify-content:space-between; }}
+  .empty {{ color:var(--mut); }}
+  @media print {{ body {{ background:#fff; }} .sheet {{ border:none; margin:0; max-width:none; }}
+                  .toolbar {{ display:none; }} }}
+</style></head>
+<body>
+  <div class="sheet">
+    <div class="top">
+      <div class="brand"><span class="m">V</span><div>VicoGuard AI<br/><small>Reporte de seguridad</small></div></div>
+      <div class="toolbar"><button class="btn primary" onclick="window.print()">Imprimir / Guardar PDF</button></div>
+    </div>
+    <div class="hero">
+      <div class="ring">
+        <svg width="120" height="120" viewBox="0 0 118 118">
+          <circle cx="59" cy="59" r="52" fill="none" stroke="#e9edf1" stroke-width="10"/>
+          <circle cx="59" cy="59" r="52" fill="none" stroke="{accent}" stroke-width="10"
+                  stroke-linecap="round" stroke-dasharray="{circ}" stroke-dashoffset="{dash:.0f}"/>
+        </svg>
+        <div class="n">{score}</div>
+      </div>
+      <div class="meta">
+        <h1>{company}</h1>
+        <span class="risk">{risk} · {score}/100</span>
+        <div class="kv"><b>Objetivo:</b> {target}</div>
+        <div class="kv"><b>Generado:</b> {gen} &nbsp;·&nbsp; <b>Análisis:</b> {_report_escape(result.get('source','')) or 'n/a'}</div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="cell"><div class="l">Críticos</div><div class="v" style="color:#FF6B6B">{raw.get('critical',0)}</div></div>
+      <div class="cell"><div class="l">Altos</div><div class="v" style="color:#FF9145">{raw.get('high',0)}</div></div>
+      <div class="cell"><div class="l">Medios</div><div class="v" style="color:#F4C24E">{raw.get('medium',0)}</div></div>
+      <div class="cell"><div class="l">Total</div><div class="v">{raw.get('total',0)}</div></div>
+    </div>
+    <section>
+      <h2>Resumen ejecutivo</h2>
+      <p class="summary">{summary or 'Escaneo completado.'}</p>
+    </section>
+    <section>
+      <h2>Hallazgos y remediación</h2>
+      <table><tbody>{rows_html}</tbody></table>
+    </section>
+    <section>
+      <h2>Memoria del agente (no redundante)</h2>
+      <p class="summary">VicoGuard registró estos hallazgos como
+        <b>{canonical_stats.get('unique_entities',0)} entidades canónicas únicas</b>
+        con <b>{canonical_stats.get('evidences',0)} evidencias</b> y
+        <b>{canonical_stats.get('redundant_nodes_avoided',0)} duplicados evitados</b>.
+        El cerebro cognitivo acumula <b>{brain_stats.get('total_memories',0)} memorias</b> de amenazas.</p>
+    </section>
+    <div class="foot">
+      <span>Confidencial · generado para {company}</span>
+      <span>VicoGuard AI · Hackatón FLIT 2026</span>
+    </div>
+  </div>
+</body></html>"""
+
+
+@app.get("/api/v1/scan/{scan_id}/report", response_class=HTMLResponse)
+async def scan_report(scan_id: str, request: Request):
+    """Reporte ejecutivo imprimible (HTML self-contained) de un scan del usuario."""
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/ui/login")
+    ctx = tenants.get(user.id)
+    result = (ctx.scan_jobs.get(scan_id) or {}).get("result")
+    if not result and ctx.latest_scan.get("scan_id") == scan_id:
+        result = ctx.latest_scan
+    if not result:
+        raise HTTPException(status_code=404, detail="Scan no encontrado.")
+    html = _build_report_html(user, result, ctx.brain.get_stats(), ctx.canonical.get_stats())
+    return HTMLResponse(content=html, headers={"Cache-Control": "no-store"})
+
+
+@app.get("/api/v1/report/latest", response_class=HTMLResponse)
+async def latest_report(request: Request):
+    """Reporte del último scan del usuario."""
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/ui/login")
+    ctx = tenants.get(user.id)
+    if not ctx.latest_scan:
+        raise HTTPException(status_code=404, detail="Aún no hay escaneos.")
+    html = _build_report_html(user, ctx.latest_scan, ctx.brain.get_stats(), ctx.canonical.get_stats())
+    return HTMLResponse(content=html, headers={"Cache-Control": "no-store"})
+
+
 # ============================================================
 # Endpoint — Telegram webhook (callback público del bot)
 # ============================================================
@@ -782,23 +1104,28 @@ async def telegram_webhook(request: Request):
     action, token = parts[1], parts[2]
     ref = feedback_tokens.get(token)
     answer_text = "OK"
+    bot_token = None  # se resuelve al del tenant dueño del scan
 
     if ref:
         ctx = tenants.get(ref["user_id"])
+        bot_token = ctx.get_setting("telegram_bot_token")  # bot del usuario
+        chat_id = ctx.get_setting("telegram_chat_id")
         if action == "success":
             rid = _resolve_brain_record_id(ctx, ref["record_id"]) or ref["record_id"]
             ctx.brain.mark_success(rid)
             answer_text = "Parche marcado como aplicado. VicoGuard aprendio."
             dispatcher.telegram._send_message(
                 "*Feedback recibido*\nRemediacion marcada como exitosa. "
-                "La proxima vez responderemos en <1s desde el Causal Cache.")
+                "La proxima vez responderemos en <1s desde el Causal Cache.",
+                bot_token=bot_token, chat_id=chat_id)
         elif action == "failed":
             rid = _resolve_brain_record_id(ctx, ref["record_id"]) or ref["record_id"]
             ctx.brain.mark_failed(rid)
             answer_text = "Marcado como fallido. Generaremos otra solucion."
             dispatcher.telegram._send_message(
                 "*Remediacion fallida*\nEl cerebro invalido este parche. "
-                "Ejecuta un nuevo scan para regenerar la solucion.")
+                "Ejecuta un nuevo scan para regenerar la solucion.",
+                bot_token=bot_token, chat_id=chat_id)
         elif action == "details":
             job = ctx.scan_jobs.get(ref["scan_id"]) or {}
             result = job.get("result")
@@ -809,7 +1136,8 @@ async def telegram_webhook(request: Request):
                 dispatcher.telegram._send_message(
                     f"*Detalles del Scan*\nScore: {result.get('security_score')}/100\n"
                     f"Target: `{result.get('target_url')}`\n\n{findings_text}\n\n"
-                    f"_{result.get('summary', '')}_")
+                    f"_{result.get('summary', '')}_",
+                    bot_token=bot_token, chat_id=chat_id)
                 answer_text = "Detalles enviados"
             else:
                 answer_text = "Scan no encontrado"
@@ -817,7 +1145,7 @@ async def telegram_webhook(request: Request):
         answer_text = "Sesion expirada"
 
     try:
-        dispatcher.telegram.answer_callback(callback_id, answer_text)
+        dispatcher.telegram.answer_callback(callback_id, answer_text, bot_token=bot_token)
     except Exception as e:
         print(f"[Telegram webhook] answer error: {e}")
     return {"ok": True, "action": action}

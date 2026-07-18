@@ -16,9 +16,9 @@
       <nav class="nav grow">
         <a href="#scan" class="active">Escaneo</a>
         <a href="#findings">Hallazgos</a>
+        <a href="#topology">Topología</a>
         <a href="#memory">Memoria</a>
         <a href="#settings">Configuración</a>
-        <a href="/docs" target="_blank">API</a>
       </nav>
       <div class="usermenu">
         <div class="stack" style="align-items:flex-end; line-height:1.2">
@@ -114,8 +114,30 @@
     <section id="findings" class="card mt-16">
       <div class="card-head">
         <div><div class="eyebrow">Diagnóstico</div><h2 style="margin-top:4px">Hallazgos y remediación</h2></div>
+        <div class="row gap-8">
+          <button class="btn small" id="send-all-btn" type="button" disabled>Enviar todo por Telegram</button>
+          <button class="btn small" id="report-btn" type="button" disabled>Descargar reporte</button>
+        </div>
       </div>
       <div id="findings-list"><div class="empty">Sin hallazgos todavía.</div></div>
+    </section>
+
+    <!-- Topology map -->
+    <section id="topology" class="card mt-16">
+      <div class="card-head">
+        <div><div class="eyebrow">Superficie de ataque</div><h2 style="margin-top:4px">Mapa de topología del escaneo</h2></div>
+        <span class="small muted" id="topo-line"></span>
+      </div>
+      <div class="topo-wrap" id="topo-wrap">
+        <div class="empty" id="topo-empty">Escanea una aplicación para mapear su superficie y vulnerabilidades.</div>
+      </div>
+      <div class="topo-legend">
+        <span class="item"><span class="dot" style="background:var(--blue)"></span> Servicio / host</span>
+        <span class="item"><span class="dot" style="background:var(--critical)"></span> Crítico</span>
+        <span class="item"><span class="dot" style="background:var(--high)"></span> Alto</span>
+        <span class="item"><span class="dot" style="background:var(--medium)"></span> Medio</span>
+        <span class="item"><span class="dot" style="background:var(--low)"></span> Bajo/Info</span>
+      </div>
     </section>
 
     <!-- Canonical memory -->
@@ -145,8 +167,13 @@
         </div>
         <div class="row gap-12" style="margin-top: 20px; align-items: center;">
           <button class="btn btn-primary" id="save-settings-btn" type="submit">Guardar configuración</button>
+          <button class="btn" id="test-telegram-btn" type="button">Enviar prueba</button>
           <span id="settings-status" class="small" style="font-weight: 500;"></span>
         </div>
+        <p class="small muted" style="margin-top:14px; max-width:480px">
+          Cada cuenta usa su <b>propio bot</b>. Configura aquí tu token de @BotFather y tu chat ID:
+          tus alertas y remediaciones llegarán solo a tu Telegram, aislado del resto de usuarios.
+        </p>
       </form>
     </section>
 

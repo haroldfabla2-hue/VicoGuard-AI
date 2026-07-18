@@ -48,6 +48,10 @@
   --fs-display: clamp(38px, 5vw, 52px);
   --fs-h1: 28px; --fs-h2: 19px; --fs-h3: 15px;
   --fs-body: 15px; --fs-small: 13px; --fs-micro: 11.5px;
+
+  /* Alias de compatibilidad (marcado antiguo usa --accent / --border) */
+  --accent: var(--secure);
+  --border: var(--line);
 }
 
 * { box-sizing: border-box; }
@@ -281,6 +285,32 @@ input[type="checkbox"] { accent-color: var(--blue); width: 15px; height: 15px; }
   .kpis { grid-template-columns: repeat(2, 1fr); }
   .grid-2 { grid-template-columns: 1fr; }
 }
+
+/* ---------- Finding actions (enviar remediación) ---------- */
+.finding-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.btn-xs {
+  font-size: var(--fs-small); padding: 6px 11px; border-radius: var(--r-sm);
+  border: 1px solid var(--line-2); background: var(--surface); color: var(--text-dim);
+  cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: .15s;
+}
+.btn-xs:hover { background: var(--surface-1); color: var(--paper); }
+.btn-xs:disabled { opacity: .5; cursor: default; }
+.btn-xs.sent { color: var(--secure); border-color: var(--secure-line); background: var(--secure-tint); }
+
+/* ---------- Topología (grafo) ---------- */
+.topo-wrap { position: relative; width: 100%; overflow: hidden; border-radius: var(--r); background: #07090D; border: 1px solid var(--line); }
+.topo-wrap svg { display: block; width: 100%; height: auto; }
+.topo-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 14px; }
+.topo-legend .item { display: flex; align-items: center; gap: 7px; font-size: var(--fs-small); color: var(--text-dim); }
+.topo-node-label { font-family: var(--font-mono); font-size: 10.5px; fill: var(--text-dim); }
+.topo-hub-label { font-family: var(--font-sans); font-size: 12px; font-weight: 600; fill: var(--paper); }
+.topo-edge { stroke: var(--line-2); stroke-width: 1.2; opacity: .55; }
+.topo-tip {
+  position: absolute; pointer-events: none; background: var(--surface-2); border: 1px solid var(--line-2);
+  color: var(--paper); font-size: 12px; padding: 7px 10px; border-radius: 8px; max-width: 260px;
+  box-shadow: var(--shadow-2); opacity: 0; transition: opacity .12s; z-index: 5;
+}
+.topo-tip .k { color: var(--text-mut); font-family: var(--font-mono); font-size: 11px; }
 @media (max-width: 820px) {
   .auth { grid-template-columns: 1fr; }
   .auth .aside { display: none; }

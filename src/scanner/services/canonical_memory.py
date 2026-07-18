@@ -782,6 +782,42 @@ class CanonicalMemory:
                 ).fetchall()
         return [dict(r) for r in rows]
 
+    def get_graph(self, limit: int = 200) -> Dict[str, Any]:
+        """Devuelve el grafo canónico (nodos + aristas) para el mapa de topología.
+
+        Nodos = entidades canónicas activas (Vulnerability, Service, ...).
+        Aristas = relaciones (AFFECTS, VARIANT_OF, ...) entre nodos presentes.
+        """
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                "SELECT canonical_id, entity_type, normalized_key, label, attrs, "
+                "current_belief, evidence_count, last_seen FROM canonical_entities "
+                "WHERE status = 'active' ORDER BY last_seen DESC LIMIT ?", (limit,),
+            ).fetchall()
+            edges = conn.execute(
+                "SELECT source_id, target_id, rel_type, weight FROM entity_relations"
+            ).fetchall()
+        node_ids = {r["canonical_id"] for r in rows}
+        nodes = []
+        for r in rows:
+            attrs = json.loads(r["attrs"] or "{}")
+            belief = json.loads(r["current_belief"] or "{}")
+            nodes.append({
+                "id": r["canonical_id"], "type": r["entity_type"], "label": r["label"],
+                "key": r["normalized_key"], "category": attrs.get("category"),
+                "cwe": attrs.get("cwe"), "host": attrs.get("host"),
+                "component": attrs.get("component"),
+                "severity": (belief.get("severity") or "").upper(),
+                "evidence_count": r["evidence_count"],
+            })
+        out_edges = [
+            {"source": e["source_id"], "target": e["target_id"],
+             "type": e["rel_type"], "weight": e["weight"]}
+            for e in edges if e["source_id"] in node_ids and e["target_id"] in node_ids
+        ]
+        return {"nodes": nodes, "edges": out_edges}
+
     def get_stats(self) -> Dict[str, Any]:
         """Métricas de deduplicación para /brain/stats y el pitch."""
         with sqlite3.connect(self.db_path) as conn:
