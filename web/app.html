@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Centro de Seguridad · VicoGuard AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/ui/assets/styles.css"/>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container inner">
+      <div class="brand"><span class="mark">V</span><span class="name"><b>VicoGuard</b> AI</span></div>
+      <nav class="nav grow">
+        <a href="#scan" class="active">Escaneo</a>
+        <a href="#findings">Hallazgos</a>
+        <a href="#memory">Memoria</a>
+        <a href="/docs" target="_blank">API</a>
+      </nav>
+      <div class="usermenu">
+        <div class="stack" style="align-items:flex-end; line-height:1.2">
+          <span id="user-name" class="small" style="font-weight:600">—</span>
+          <span id="user-company" class="small muted"></span>
+        </div>
+        <div class="avatar" id="avatar">–</div>
+        <button class="btn btn-ghost small" id="logout">Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top:26px; padding-bottom:60px">
+
+    <!-- Scan launcher -->
+    <section id="scan" class="card">
+      <div class="card-head">
+        <div>
+          <div class="eyebrow">Auditoría</div>
+          <h2 style="margin-top:4px">Escanear una aplicación</h2>
+        </div>
+        <button class="btn small" id="use-demo" type="button">Usar target de demo</button>
+      </div>
+      <form id="scan-form" class="row gap-12" style="flex-wrap:wrap">
+        <input class="input grow" id="url" type="text" placeholder="https://tu-app.com" style="min-width:280px" required/>
+        <label class="row gap-8 small muted" style="user-select:none">
+          <input type="checkbox" id="notify"/> Notificar por Telegram
+        </label>
+        <button class="btn btn-primary" id="scan-btn" type="submit">Escanear ahora</button>
+      </form>
+    </section>
+
+    <!-- KPIs -->
+    <section class="kpis mt-16">
+      <div class="kpi">
+        <div class="label"><span class="dot" style="background:var(--critical)"></span> Críticos</div>
+        <div class="value" id="kpi-critical">—</div>
+        <div class="sub" id="kpi-critical-sub">sin datos</div>
+      </div>
+      <div class="kpi">
+        <div class="label"><span class="dot" style="background:var(--high)"></span> Altos / Medios</div>
+        <div class="value" id="kpi-high">—</div>
+        <div class="sub">severidad HIGH + MEDIUM</div>
+      </div>
+      <div class="kpi">
+        <div class="label"><span class="dot" style="background:var(--low)"></span> Memoria del cerebro</div>
+        <div class="value" id="kpi-brain">—</div>
+        <div class="sub" id="kpi-brain-sub">amenazas aprendidas</div>
+      </div>
+      <div class="kpi">
+        <div class="label"><span class="dot" style="background:var(--accent)"></span> Nodos canónicos</div>
+        <div class="value" id="kpi-canonical">—</div>
+        <div class="sub" id="kpi-canonical-sub">sin duplicados</div>
+      </div>
+    </section>
+
+    <div class="grid-2 mt-16">
+      <!-- Live terminal -->
+      <section class="card">
+        <div class="card-head">
+          <div><div class="eyebrow">Agente en vivo</div><h2 style="margin-top:4px">Ejecución</h2></div>
+          <span id="scan-status" class="chip">inactivo</span>
+        </div>
+        <div class="terminal" id="terminal">
+          <div class="log"><span class="m muted">&gt; Esperando un escaneo…</span></div>
+        </div>
+      </section>
+
+      <!-- Score -->
+      <section class="card">
+        <div class="eyebrow">Resultado</div>
+        <div class="score-wrap mt-16">
+          <div class="ring">
+            <svg width="118" height="118" viewBox="0 0 118 118">
+              <circle cx="59" cy="59" r="52" fill="none" stroke="var(--border)" stroke-width="10"/>
+              <circle id="ring-fg" cx="59" cy="59" r="52" fill="none" stroke="var(--accent)" stroke-width="10"
+                      stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="327"/>
+            </svg>
+            <div class="num" id="score-num">—</div>
+          </div>
+          <div class="stack gap-8">
+            <span id="risk-label" class="chip">sin evaluar</span>
+            <div class="small muted" id="scan-target">Aún no hay escaneos.</div>
+            <div class="small" id="scan-source"></div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <p class="small muted" id="summary">Ejecuta un escaneo para ver el diagnóstico ejecutivo.</p>
+      </section>
+    </div>
+
+    <!-- Findings -->
+    <section id="findings" class="card mt-16">
+      <div class="card-head">
+        <div><div class="eyebrow">Diagnóstico</div><h2 style="margin-top:4px">Hallazgos y remediación</h2></div>
+      </div>
+      <div id="findings-list"><div class="empty">Sin hallazgos todavía.</div></div>
+    </section>
+
+    <!-- Canonical memory -->
+    <section id="memory" class="card mt-16">
+      <div class="card-head">
+        <div><div class="eyebrow">Memoria canónica</div><h2 style="margin-top:4px">Entidades sin duplicar</h2></div>
+        <span class="small muted" id="dedup-line"></span>
+      </div>
+      <div id="entities-list"><div class="empty">Cada vulnerabilidad se registra una sola vez. Escanea para poblar la memoria.</div></div>
+    </section>
+
+  </main>
+
+  <script src="/ui/assets/app.js"></script>
+</body>
+</html>

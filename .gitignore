@@ -83,3 +83,8 @@ src/scripts/list_drive_full.py
 src/scripts/list_drive_pdfs.py
 src/scripts/list_drive_trashed.py
 src/scripts/run_and_debug_dl.py
+
+# Datos por-tenant (bases de datos aisladas por usuario)
+data/
+src/data/
+vicoguard_app.db
