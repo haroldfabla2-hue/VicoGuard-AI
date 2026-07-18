@@ -1,174 +1,125 @@
-# 🛡️ VicoGuard AI — Hackathon FLIT 2026
+# 🛡️ VicoGuard AI & WASP Sentinel — Suite de Ciberseguridad Agéntica Unificada
 
-> **Agente Autónomo de Ciberseguridad para Pymes**
-> Escaneo + Monitoreo de Servidores + Correlación IA + Auto-Remediación por Telegram
+> **FLIT Hackathon 2026 (Arequipa)**  
+> La fusión definitiva del ecosistema de seguridad de Silhouette: un nodo centinela local (WASP) con ledger criptográfico y gobernanza de agentes, conectado a un panel de control empresarial y cerebro cognitivo multi-tenant (VicoGuard AI).
 
 ---
 
-## Demo rápida (MVP)
+## 💡 ¿Qué es?
 
-### 1. Requisitos
+Esta suite unifica dos capas de ciberseguridad agéntica complementarias:
 
-```bash
-pip install -r requirements.txt
-cp .env.example .env   # si aún no tienes .env
-```
+1. **WASP Core (Capa Local / Sentinel):**
+   * **Auditoría Estática:** Escanea repositorios locales usando Semgrep y Gitleaks integrados.
+   * **Gobernanza MCP (Model Context Protocol):** Un servidor de políticas que intercepta comandos de terminal (ej. de Claude Code o Cursor) para bloquear acciones de riesgo (como `git push --force` o leaks de credenciales) usando un contrato de capacidades (`capability_contract.yaml`).
+   * **Ledger Inmutable:** Registra todas las amenazas y decisiones de gobernanza en una cadena de hashes criptográfica (Hash-Chain SHA-256) a prueba de alteraciones.
+   * **Bot de Control:** Permite consultar y gestionar el centinela local por Telegram (/status, /alertas, /explicar).
 
-Edita `.env` y pon valores reales (sin esto, Telegram/OpenAI no funcionan; el scanner sí):
+2. **VicoGuard AI Core (Capa Central / Hub Multi-Tenant):**
+   * **Servidor API FastAPI:** Orquesta el escaneo remoto de URLs, telemetría y logs de servidores.
+   * **Aislamiento Físico Multi-Tenant:** Registro y sesión con PBKDF2-HMAC-SHA256, asignando a cada usuario su propia base de datos física SQLite (`src/data/tenants/<user_id>.db`) para evitar cualquier filtrado cruzado de datos.
+   * **Cerebro Cognitivo de 4 Capas:**
+     * *Working Memory:* LRU cache en memoria (<1ms).
+     * *Episodic Memory:* Causal cache (normaliza huellas digitales SHA-256 para resolver amenazas conocidas en 0ms y con 0 tokens).
+     * *Canonical Node Memory:* Resuelve identidades semánticas fusionando hallazgos duplicados bajo una misma entidad en un grafo de amenazas.
+   * **Panel de Control UI Premium:** Interfaz oscura ("Obsidian Stealth") con gráficos de score de seguridad y terminal del agente en tiempo real.
 
-| Variable | Obligatorio para | Notas |
-|----------|------------------|--------|
-| `OPENAI_API_KEY` | Análisis IA (GPT) | Sin key → fallback heurístico |
-| `TELEGRAM_BOT_TOKEN` | Alertas Telegram | Placeholder `123456…` = desactivado |
-| `TELEGRAM_CHAT_ID` | Alertas Telegram | Chat/grupo destino |
-| `API_HOST` / `API_PORT` | Servidor | Default `0.0.0.0` / `8000` |
+3. **WASP Network (Capa Colaborativa):**
+   * Servidor de agregación en red para publicar de forma opt-in y anónima las métricas e incidentes de múltiples centinelas locales del equipo en un dashboard global.
 
-### 2. Arrancar API + UI
+---
 
+## 🚀 Setup Rápido
+
+1. **Clonar e instalar dependencias:**
+   ```bash
+   python -m venv .venv
+   .venv\Scripts\activate   # En Windows
+   pip install -r src/requirements.txt
+   pip install -r requirements.txt      # dependencias del nodo wasp
+   ```
+
+2. **Configurar Variables de Entorno:**
+   Copia el archivo `.env.example` a `.env` y rellena las claves:
+   ```bash
+   cp .env.example .env
+   ```
+
+3. **Verificar Bot de Telegram:**
+   ```bash
+   python src/scripts/test_telegram.py
+   ```
+
+---
+
+## 🖥️ Ejecución y Pruebas
+
+### 🔵 Capa 1: Servidor API & Web UI (VicoGuard)
+
+Levanta el servidor central en el puerto 8000:
 ```bash
 cd src
 uvicorn api.main:app --reload --port 8000
 ```
 
-| URL | Qué es |
-|-----|--------|
-| http://localhost:8000/ui/login | Iniciar sesión |
-| http://localhost:8000/ui/signup | Crear cuenta |
-| http://localhost:8000/ui/app | Centro de Seguridad (escaneo + hallazgos + memoria) |
-| http://localhost:8000/docs | Swagger OpenAPI |
-| http://localhost:8000/demo/vulnerable | Target demo (secretos fake + sin headers) |
-| http://localhost:8000/api/v1/health | Health check |
+* **Swagger Docs:** `http://localhost:8000/docs`
+* **Centro de Seguridad (App):** `http://localhost:8000/ui/login`
+* **Target Demo Vulnerable:** `http://localhost:8000/demo/vulnerable` (omite headers de seguridad, expone tokens falsos y simula un Supabase sin RLS)
 
-> Pantallas antiguas de `ui_stitch` siguen accesibles en `/ui/legacy/<pantalla>`.
+#### Flujo del Pitch (VicoGuard):
+1. Regístrate en `/ui/signup`.
+2. En el panel, pulsa **"Usar target de demo"** y ejecuta **"Escanear ahora"**.
+3. Se detectarán 10 hallazgos (incluyendo el Supabase RLS deshabilitado mock). El score caerá a ~5/100 y recibirás la alerta formateada en tu Telegram.
+4. Escanea la misma URL de nuevo. El sistema aplicará **Canonical Node Memory** y no duplicará la amenaza; en su lugar, fusionará la evidencia en el mismo nodo del grafo.
 
-### 3. Flujo de pitch (2 minutos)
+---
 
-1. Abre **/ui/signup** y crea una cuenta (o inicia sesión en **/ui/login**).
-2. En el Centro de Seguridad pulsa **"Usar target de demo"** → **"Escanear ahora"**.
-3. (Opcional) marca *Notificar por Telegram* si ya tienes token real.
-4. Observa el **agente en vivo**, el **score**, los **hallazgos** y la **memoria canónica**.
-5. Vuelve a escanear la misma URL → verás `BRAIN: canonical hit … (merged evidence #2)`.
+### 🟡 Capa 2: Centinela Local & Ledger Criptográfico (WASP)
 
-El target demo expone anon key / password / API key **falsos**, omite headers de seguridad
-y sirve un **Supabase mock con RLS deshabilitado** (`/demo/supabase`, datos falsos) → el
-scanner reporta **10 hallazgos, 2 CRITICAL de RLS** (tablas `users` y `customers`), score
-heurístico **~5** sin OpenAI. Todo auto-contenido: no necesita ningún Supabase externo.
-
-Scan async por API (recomendado para auto-escanear el mismo servidor):
-
+Corre un escaneo local del repositorio desde la consola:
 ```bash
-curl -X POST http://localhost:8000/api/v1/scan/start \
-  -H "Content-Type: application/json" \
-  -d "{\"repo_url\":\"http://127.0.0.1:8000/demo/vulnerable\",\"notify\":false}"
+python -m centinela.main scan tests/fixtures/vuln_sample_repo
 ```
 
-Luego poll: `GET /api/v1/scan/{scan_id}` o abre `/ui/live`.
+Esto ejecutará Semgrep + Gitleaks sobre la app de prueba vulnerable, deduplicará el ruido y escribirá el resultado en el Ledger criptográfico (`centinela.ledger`).
 
-> **Momento "cerebro" del pitch:** escanea `/demo/vulnerable` **dos veces**. En el 1er
-> scan la terminal live muestra `BRAIN: nueva entidad canónica VG-VULN-…`; en el 2º
-> muestra `BRAIN: canonical hit VG-VULN-… (merged evidence #2)`. VicoGuard **no** duplica
-> la vulnerabilidad: apila evidencia sobre el mismo nodo canónico
-> (Canonical Node Memory — ver [.agents/15_CANONICAL_NODE_MEMORY.md](.agents/15_CANONICAL_NODE_MEMORY.md)).
-> Inspecciona el grafo: `GET /api/v1/brain/entities` y `GET /api/v1/brain/entity/{canonical_id}`.
+* **Verificar el estado del Ledger:**
+  El bot de Telegram del centinela (inicializado con `python -m centinela.telegram_bot.bot`) permite interactuar con el ledger local:
+  * `/status` — Muestra el estado del centinela y si el Ledger es íntegro y válido.
+  * `/alertas` — Lista las últimas vulnerabilidades registradas.
+  * `/explicar <id>` — Usa IA para generar una explicación simple y un plan de remediación del hallazgo.
 
-> Usa siempre `/api/v1/scan/start` (async + thread pool) para escanear `/demo/vulnerable` en el mismo proceso. El endpoint sync `/scan/repository` puede hacer timeout al pedirse a sí mismo.
+---
 
-### 4. Telegram en vivo (botones inline)
+### 🟢 Capa 3: Red Global (WASP Network)
 
-Con `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` reales en `.env`, escanea con `notify:true` y
-la alerta suena. Para que los botones **Aplicar Parche / Ignorar** respondan en vivo, Telegram
-necesita un webhook público:
-
+Levanta el panel en red (opcional) para agregar múltiples nodos:
 ```bash
-# 1) Levanta la API   → cd src && uvicorn api.main:app --port 8000
-# 2) Túnel público    → ngrok http 8000     (copia la URL https://XXXX.ngrok-free.app)
-# 3) Registra webhook → python scripts/setup_telegram_webhook.py set https://XXXX.ngrok-free.app
-# 4) Verifica         → python scripts/setup_telegram_webhook.py info
-# 5) Limpieza         → python scripts/setup_telegram_webhook.py delete
+python -m wasp_network.server
 ```
-
-El script no imprime el token y aborta si sigue siendo placeholder.
+Abre `http://localhost:8080` en tu navegador para ver la red de centinelas activos y las amenazas anonimizadas del grupo.
 
 ---
 
-## Cuentas y aislamiento multi-tenant
+## 📁 Estructura del Proyecto Unificado
 
-Plataforma con **cuentas de usuario reales** y **aislamiento físico por cuenta**:
-
-- **Auth:** registro/login con hashing **PBKDF2-HMAC-SHA256** (stdlib, sin bcrypt nativo)
-  y **sesiones en cookie HTTP-only + SameSite** (token aleatorio guardado hasheado en BD,
-  revocable). Endpoints de datos protegidos con dependencia `require_user`.
-- **Multi-tenant:** cada usuario tiene su **propia base de datos** (`src/data/tenants/<user_id>.db`)
-  con su cerebro, memoria canónica y scans. La BD global (`vicoguard_app.db`) guarda **solo**
-  `users` y `sessions`. No hay filtrado por `WHERE user_id`: los datos de un usuario **no existen**
-  en la BD de otro → imposible mezclar información entre clientes de seguridad.
-- **Front-end nuevo** (`web/`): diseño sobrio tipo SaaS de seguridad (near-black, un acento,
-  bordes hairline). Páginas: `login`, `signup`, `app` (Centro de Seguridad).
-
-| Endpoint | Descripción |
-|----------|-------------|
-| `POST /api/v1/auth/register` | Crea cuenta + inicia sesión (setea cookie) |
-| `POST /api/v1/auth/login` | Inicia sesión |
-| `POST /api/v1/auth/logout` | Cierra sesión (revoca) |
-| `GET /api/v1/auth/me` | Usuario actual |
-
-Config prod: `VG_COOKIE_SECURE=1` (cookies solo por HTTPS). Datos de tenants ignorados por git.
-
----
-
-## Quick Start (documentación del equipo)
-
-1. Lee el **[9_ENV_SETUP_CHECKLIST.md](9_ENV_SETUP_CHECKLIST.md)** y configura las variables de entorno
-2. Instala dependencias: `pip install -r requirements.txt`
-3. Prueba el bot de Telegram: `python scripts/test_telegram.py` (requiere token real)
-4. Levanta el servidor: `cd src && uvicorn api.main:app --reload --port 8000`
-
----
-
-## Estructura del Proyecto
-
-### Documentación (leer en este orden)
-| # | Archivo | Para quién | Contenido |
-|---|---------|-----------|-----------|
-| 1 | [1_PRODUCT_PITCH.md](1_PRODUCT_PITCH.md) | Todos | Problema, solución 360°, modelo de negocio, coreografía del pitch |
-| 2 | [6_TEAM_ROLES.md](6_TEAM_ROLES.md) | Todos | Roles, habilidades y reglas de oro del equipo |
-| 3 | [3_HACKATHON_ROADMAP.md](3_HACKATHON_ROADMAP.md) | Todos | Plan hora por hora (12h) con tareas por persona |
-| 4 | [2_TECHNICAL_ARCHITECTURE.md](2_TECHNICAL_ARCHITECTURE.md) | Devs | Stack, módulos, triggers, diagrama de flujo |
-| 5 | [7_AI_SYSTEM_PROMPTS.md](7_AI_SYSTEM_PROMPTS.md) | Alberto | 3 System Prompts del LLM listos para copiar/pegar |
-| 6 | [9_ENV_SETUP_CHECKLIST.md](9_ENV_SETUP_CHECKLIST.md) | Luis | Variables de entorno y checklist de setup |
-| 7 | [5_STITCH_COMPONENTS.md](5_STITCH_COMPONENTS.md) | Daniel | Índice de las 11 pantallas HTML exportadas |
-| 8 | [8_PITCH_SCRIPT_AND_QA.md](8_PITCH_SCRIPT_AND_QA.md) | Mariana | Guion del pitch + preguntas difíciles del jurado |
-| 9 | [10_DEMO_MOCK_DATA.md](10_DEMO_MOCK_DATA.md) | Todos | Datos mock de emergencia para la demo |
-| 10 | [4_DESIGN_AND_UI.md](4_DESIGN_AND_UI.md) | Daniel | Filosofía visual y prompts de Stitch |
-| 11 | [11_MEGA_STITCH_PROMPTS.md](11_MEGA_STITCH_PROMPTS.md) | Daniel | 4 Mega Prompts para generar pantallas adicionales |
-
-### Front-end (diseño profesional nuevo)
 ```
-web/
-├── login.html            # /ui/login
-├── signup.html           # /ui/signup
-├── app.html              # /ui/app  (Centro de Seguridad)
-└── assets/
-    ├── styles.css        # Design system (near-black + acento contenido)
-    └── app.js            # Lógica del dashboard (auth-aware, cookies)
-```
-> `ui_stitch/` se conserva como legacy en `/ui/legacy/<pantalla>`.
-
-### Código
-```
-src/
-├── api/
-│   ├── main.py                 # FastAPI — REST + auth + UI + /demo/vulnerable
-│   ├── auth.py                 # Cuentas + sesiones (PBKDF2 + cookies)
-│   └── tenancy.py              # Aislamiento por usuario (BD por tenant)
-├── scanner/services/
-│   ├── security_scanner.py     # Motor de escaneo
-│   ├── ai_engine.py            # Motor de IA
-│   ├── cognitive_brain.py      # Memoria episódica / causal cache (fingerprint)
-│   ├── canonical_memory.py     # Canonical Node Memory — dedup por identidad semántica
-│   └── notifications.py        # Telegram + dispatcher
-└── scripts/
-    ├── setup_telegram_webhook.py
-    ├── test_telegram.py
-    └── mock_server_logs.py
+├── .agents/                    # Dossiers de producto, pitch y documentación académica
+├── .claude/                    # Configuraciones de MCP para integración con Claude Code
+├── bin/                        # Binarios de escaneo descargables (Semgrep, Gitleaks)
+├── centinela/                  # Capa Local (Guards, Ledger inmutable, Command Interpreter, Bot)
+│   ├── attack/                 # Simulador y demo de contención de ataques
+│   ├── guards/                 # Wrappers de Semgrep, Gitleaks, y Governance Guard
+│   ├── interpreter/            # Consultas al Ledger con IA
+│   ├── ledger/                 # Hash-chain criptográfica
+│   └── telegram_bot/           # Bot local de interacción
+├── config/                     # Configuraciones de nodos
+├── src/                        # Capa Central (FastAPI, Cognitive Brain, Tenancy, Scanners)
+│   ├── api/                    # Servidor API REST, Autenticación y Tenancy aislado
+│   ├── scanner/services/       # Scanner remoto, AI Engine, Causal Memory, Notificaciones
+│   └── scripts/                # Scripts utilitarios y pipelines de ejecución
+├── ui_stitch/                  # Mockups estáticos legacy en alta fidelidad
+├── wasp_network/               # Capa Colaborativa (Agregador de red, Web Dashboard)
+├── web/                        # Frontend dinámico profesional (auth-aware, multi-tenant)
+└── requirements.txt            # Dependencias del nodo local wasp
 ```

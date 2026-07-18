@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Red WASP — Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header class="header">
+    <h1>🐝 Red WASP</h1>
+    <p class="subtitle">Hallazgos agregados y anonimizados por nodo Centinela</p>
+    <div class="status" id="connection-status">Conectando…</div>
+  </header>
+
+  <main id="nodes-grid" class="nodes-grid">
+    <p class="empty-state" id="empty-state">Esperando datos de nodos…</p>
+  </main>
+
+  <script src="/static/dashboard.js"></script>
+</body>
+</html>

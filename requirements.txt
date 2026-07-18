@@ -1,0 +1,13 @@
+mcp[cli]==1.12.2
+semgrep-mcp==0.9.0
+setuptools<81
+python-telegram-bot==22.8
+sse-starlette==3.4.5
+fastapi
+uvicorn[standard]
+pyyaml
+filelock==3.31.0
+pydantic
+httpx
+pytest
+anthropic

@@ -1,0 +1,20 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "E:\\PROYECTOS_JADEN\\10_Hackatones\\PROYECTO INVESTIGACION\\wasp\\.venv\\Scripts\\python.exe",
+            "args": [
+              "E:\\PROYECTOS_JADEN\\10_Hackatones\\PROYECTO INVESTIGACION\\wasp\\centinela\\guards\\governance_guard\\audit_hook.py"
+            ],
+            "timeout": 15,
+            "statusMessage": "WASP governance guard checking action..."
+          }
+        ]
+      }
+    ]
+  }
+}
