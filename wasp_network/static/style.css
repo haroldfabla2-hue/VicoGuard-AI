@@ -1,167 +1,166 @@
-:root {
-  --bg: #0b1020;
-  --panel: #151b2e;
-  --text: #f4f6fb;
-  --muted: #9aa4c0;
-  --border: #2a3352;
-
-  --critical: #ff4d4f;
-  --high: #ff9f43;
-  --medium: #f7d354;
-  --low: #4dd67f;
-}
-
-* {
-  box-sizing: border-box;
-}
+/* WASP Network dashboard — "Obsidian Stealth" design system, ported from
+   VicoGuard-AI (see ui_stitch/threat_dashboard_vicoguard_ai/code.html).
+   Tailwind (CDN) handles layout/utility classes; this file covers the pieces
+   Tailwind's utility set can't express directly: glassmorphism, ambient
+   blobs, glow effects and severity accents. */
 
 body {
-  margin: 0;
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--text);
-  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #080A0F;
+  color: #e2e2e9;
 }
 
-.header {
-  padding: 2rem 3rem 1rem;
-  text-align: center;
-  border-bottom: 1px solid var(--border);
+/* Glass panel — base surface for every card/badge in this dashboard. */
+.glass-panel {
+  background-color: rgba(22, 28, 40, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
 }
 
-.header h1 {
-  margin: 0;
-  font-size: 3rem;
-  letter-spacing: 0.05em;
+/* Ambient background blobs — subtle depth, no distraction. */
+.ambient-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(120px);
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 0;
 }
 
-.subtitle {
-  margin: 0.25rem 0 0;
-  color: var(--muted);
-  font-size: 1.25rem;
+.ambient-blob-1 {
+  top: -10%;
+  left: -5%;
+  width: 40vw;
+  height: 40vw;
+  background: radial-gradient(circle, #4edea3 0%, transparent 70%);
 }
 
-.status {
-  margin-top: 0.75rem;
-  display: inline-block;
-  padding: 0.25rem 1rem;
-  border-radius: 999px;
-  font-size: 1rem;
-  font-weight: 600;
-  background: #2a3352;
-  color: var(--muted);
+.ambient-blob-2 {
+  bottom: -15%;
+  right: -10%;
+  width: 45vw;
+  height: 45vw;
+  background: radial-gradient(circle, #571bc1 0%, transparent 70%);
 }
 
-.status.live {
-  background: rgba(77, 214, 127, 0.15);
-  color: var(--low);
-}
-
-.status.error {
-  background: rgba(255, 77, 79, 0.15);
-  color: var(--critical);
-}
-
-.nodes-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-  gap: 1.5rem;
-  padding: 2rem 3rem;
-}
-
-.empty-state {
-  grid-column: 1 / -1;
-  text-align: center;
-  color: var(--muted);
-  font-size: 1.5rem;
-  margin-top: 3rem;
-}
-
+/* Node card */
 .node-card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 1.5rem;
+  position: relative;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top-width: 3px;
+  border-top-style: solid;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.node-card--severity-critical {
+  border-top-color: #f43f5e;
+}
+
+.node-card--severity-high {
+  border-top-color: #ffb95f;
+}
+
+.node-card--severity-clear {
+  border-top-color: #4edea3;
 }
 
 .node-card__header {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 1rem;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.node-card__name {
-  font-size: 1.6rem;
-  font-weight: 700;
-  margin: 0;
+.node-card__title {
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 24px;
+  color: #e2e2e9;
+  overflow-wrap: anywhere;
 }
 
-.node-card__id {
-  color: var(--muted);
-  font-size: 1rem;
+.node-card__timestamp {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  color: #bbcabf;
 }
 
-.severity-row {
+/* KPI tiles */
+.kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
-.severity-pill {
-  border-radius: 12px;
-  padding: 0.75rem 0.5rem;
-  text-align: center;
-  color: #10131f;
-  font-weight: 700;
-}
-
-.severity-pill .count {
-  display: block;
-  font-size: 2rem;
-  line-height: 1.1;
-}
-
-.severity-pill .label {
-  display: block;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  opacity: 0.85;
-}
-
-.severity-pill.critical {
-  background: var(--critical);
-}
-
-.severity-pill.high {
-  background: var(--high);
-}
-
-.severity-pill.medium {
-  background: var(--medium);
-}
-
-.severity-pill.low {
-  background: var(--low);
-}
-
-.node-card__footer {
+.kpi-tile {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 10px 12px;
   display: flex;
-  justify-content: space-between;
-  color: var(--muted);
-  font-size: 1rem;
-  border-top: 1px solid var(--border);
-  padding-top: 0.75rem;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.node-card__denied {
-  font-weight: 700;
-  color: var(--text);
+.kpi-tile__label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #bbcabf;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.node-card__total {
+.kpi-tile__value {
+  font-family: "Inter", sans-serif;
   font-weight: 700;
-  color: var(--text);
+  font-size: 28px;
+  line-height: 1;
+}
+
+/* Denied-actions badge — WASP-specific (agent governance), no VicoGuard
+   equivalent. Same pill language as VicoGuard's finding-severity badges. */
+.denied-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  font-weight: 500;
+  background: #571bc122;
+  border: 1px solid #571bc155;
+  color: #d0bcff;
+}
+
+/* Connection / node-count status dots */
+.dot-glow-live {
+  background: #4edea3;
+  box-shadow: 0 0 8px rgba(78, 222, 163, 0.8);
+}
+
+.dot-glow-error {
+  background: #f43f5e;
+  box-shadow: 0 0 8px rgba(244, 63, 94, 0.8);
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.dot-pulse {
+  animation: pulse-dot 1.6s ease-in-out infinite;
 }

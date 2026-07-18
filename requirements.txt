@@ -7,7 +7,7 @@ fastapi
 uvicorn[standard]
 pyyaml
 filelock==3.31.0
+python-dotenv
 pydantic
 httpx
 pytest
-anthropic

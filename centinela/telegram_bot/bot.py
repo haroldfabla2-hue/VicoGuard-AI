@@ -36,6 +36,13 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO,
 )
+# httpx (used internally by python-telegram-bot for every API call) logs the
+# full request URL at INFO level, and Telegram's Bot API embeds the token
+# directly in the URL path (api.telegram.org/bot<TOKEN>/method) -- at INFO
+# level the token gets printed to the console on every single request. Not
+# acceptable for a security project's own demo terminal. WARNING still shows
+# real errors.
+logging.getLogger("httpx").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 _MAX_ALERTAS = 10
@@ -98,6 +105,10 @@ def main() -> int:
     missing instead of letting the Application builder raise deep inside
     python-telegram-bot.
     """
+    from dotenv import load_dotenv
+
+    load_dotenv()  # loads .env from the project root into os.environ, if present
+
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
     if not token:
         print(

@@ -1,13 +1,23 @@
 """Interpreter -- turns raw ledger entries into human-readable messages.
 
 Two modes:
-  - LLM mode (Anthropic API, model ``claude-sonnet-5``): used whenever an
-    API key is available, either passed explicitly or via the
-    ``ANTHROPIC_API_KEY`` environment variable.
-  - Heuristic fallback mode: used when no API key is available anywhere.
-    This is the "regla de corte de último recurso" from the project plan --
-    it must work with zero external dependencies and zero network calls, so
-    the bot is never silent just because credentials aren't configured yet.
+  - LLM mode (GLM-4.5 via Z.ai's **Coding Plan** endpoint, OpenAI-compatible
+    chat/completions protocol): used whenever an API key is available,
+    either passed explicitly or via the ``ANTHROPIC_API_KEY`` environment
+    variable (the team's key, despite the name, is a Z.ai Coding Plan key).
+    Confirmed live 2026-07-18: the Anthropic-compatible endpoint
+    (``https://api.z.ai/api/anthropic``) and the general OpenAI-compatible
+    endpoint (``https://api.z.ai/api/paas/v4``) both rejected this key
+    (401 "Invalid bearer token" / 429 "Insufficient balance" respectively)
+    -- a Coding Plan key is scoped to its own dedicated endpoint,
+    ``https://api.z.ai/api/coding/paas/v4``, OpenAI protocol only. That's
+    the one this module actually calls, via plain ``httpx`` (no ``openai``
+    SDK dependency needed for one endpoint).
+  - Heuristic fallback mode: used when no API key is available anywhere,
+    or the LLM call fails for any reason. This is the "regla de corte de
+    último recurso" from the project plan -- it must work with zero
+    external dependencies and zero network calls, so the bot is never
+    silent just because credentials aren't configured yet.
 
 Both ``summarize`` and ``explain`` (and ``answer_question``) are safe to
 call with no API key set, and this module is safe to import with no
@@ -19,14 +29,22 @@ from __future__ import annotations
 
 import os
 
-import anthropic
+import httpx
 
 from centinela.ledger import hash_chain
 
 DEFAULT_LEDGER_PATH = hash_chain.DEFAULT_LEDGER_PATH
 
-# Per project instructions: use claude-sonnet-5 for the interpreter calls.
-MODEL = "claude-sonnet-5"
+# Confirmed working 2026-07-18 against the team's real Z.ai Coding Plan key.
+# Override via env vars if the key/plan ever changes.
+MODEL = os.environ.get("ANTHROPIC_MODEL", "glm-4.5")
+GLM_CODING_ENDPOINT = (
+    os.environ.get("GLM_CODING_BASE_URL") or "https://api.z.ai/api/coding/paas/v4"
+) + "/chat/completions"
+# GLM-4.5 emits chain-of-thought (reasoning_content) before its answer,
+# which adds real latency -- 30s wasn't enough in testing and caused a
+# ReadTimeout even on a successful, in-progress request.
+_LLM_TIMEOUT_SECONDS = 90
 
 _RECENT_WINDOW = 20
 _MAX_MESSAGE_CHARS = 140
@@ -48,6 +66,29 @@ _SEVERITY_LABEL_ES = {
 def _resolve_api_key(api_key: str | None) -> str | None:
     """Prefer an explicitly passed key; fall back to the env var; else None."""
     return api_key or os.environ.get("ANTHROPIC_API_KEY") or None
+
+
+def _call_glm(system: str, user: str, api_key: str, max_tokens: int) -> str:
+    """Call the GLM-4.5 Coding Plan endpoint (OpenAI chat/completions shape)
+    and return the assistant's text. Raises on any HTTP/network error --
+    callers are expected to catch and fall back to the heuristic mode.
+    """
+    response = httpx.post(
+        GLM_CODING_ENDPOINT,
+        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        json={
+            "model": MODEL,
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": user},
+            ],
+            "max_tokens": max_tokens,
+        },
+        timeout=_LLM_TIMEOUT_SECONDS,
+    )
+    response.raise_for_status()
+    data = response.json()
+    return data["choices"][0]["message"]["content"].strip()
 
 
 def _findings(entries: list) -> list:
@@ -179,7 +220,6 @@ def _heuristic_summarize(entries: list) -> str:
 
 
 def _llm_summarize(entries: list, api_key: str) -> str:
-    client = anthropic.Anthropic(api_key=api_key)
     recent = _recent(entries)
     context = (
         "\n".join(_entry_to_prompt_line(e) for e in recent)
@@ -199,14 +239,7 @@ def _llm_summarize(entries: list, api_key: str) -> str:
     )
     user = f"Hallazgos y decisiones recientes del ledger:\n\n{context}\n\nGenerá el mensaje."
 
-    response = client.messages.create(
-        model=MODEL,
-        max_tokens=600,
-        output_config={"effort": "low"},
-        system=system,
-        messages=[{"role": "user", "content": user}],
-    )
-    text = "".join(block.text for block in response.content if block.type == "text").strip()
+    text = _call_glm(system, user, api_key, max_tokens=600)
     return text or _heuristic_summarize(entries)
 
 
@@ -312,7 +345,6 @@ def _heuristic_explain(entry: dict) -> str:
 
 
 def _llm_explain(entry: dict, api_key: str) -> str:
-    client = anthropic.Anthropic(api_key=api_key)
     context = _entry_to_prompt_line(entry)
 
     system = (
@@ -324,14 +356,7 @@ def _llm_explain(entry: dict, api_key: str) -> str:
     )
     user = f"Elemento del ledger a explicar:\n{context}"
 
-    response = client.messages.create(
-        model=MODEL,
-        max_tokens=400,
-        output_config={"effort": "low"},
-        system=system,
-        messages=[{"role": "user", "content": user}],
-    )
-    text = "".join(block.text for block in response.content if block.type == "text").strip()
+    text = _call_glm(system, user, api_key, max_tokens=400)
     return text or _heuristic_explain(entry)
 
 
@@ -362,7 +387,6 @@ def answer_question(
     context = "\n".join(_entry_to_prompt_line(e) for e in recent) if recent else "(ledger vacío)"
 
     try:
-        client = anthropic.Anthropic(api_key=resolved_key)
         system = (
             "Sos el intérprete de WASP, un sistema de seguridad automatizado. "
             "Respondé la pregunta del usuario en español, en base al "
@@ -371,14 +395,7 @@ def answer_question(
             "ese contexto, decilo en vez de inventar."
         )
         user = f"Contexto del ledger (hallazgos y decisiones recientes):\n{context}\n\nPregunta: {question}"
-        response = client.messages.create(
-            model=MODEL,
-            max_tokens=500,
-            output_config={"effort": "low"},
-            system=system,
-            messages=[{"role": "user", "content": user}],
-        )
-        text = "".join(block.text for block in response.content if block.type == "text").strip()
+        text = _call_glm(system, user, resolved_key, max_tokens=500)
         return text or "No pude generar una respuesta para eso."
     except Exception as exc:  # pragma: no cover - network/auth dependent
         return (
