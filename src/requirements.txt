@@ -4,3 +4,4 @@ openai>=1.30
 python-dotenv>=1.0
 fastapi>=0.111
 uvicorn[standard]>=0.30
+cryptography>=42.0

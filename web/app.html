@@ -15,10 +15,12 @@
       <div class="brand"><span class="mark">V</span><span class="name"><b>VicoGuard</b> AI</span></div>
       <nav class="nav grow">
         <a href="#scan" class="active">Escaneo</a>
+        <a href="#profile">Perfil Negocio</a>
+        <a href="#history">Monitoreo</a>
         <a href="#findings">Hallazgos</a>
         <a href="#topology">Topología</a>
         <a href="#memory">Memoria</a>
-        <a href="#settings">Configuración</a>
+        <a href="#plan">Plan SaaS</a>
       </nav>
       <div class="usermenu">
         <div class="stack" style="align-items:flex-end; line-height:1.2">
@@ -26,6 +28,7 @@
           <span id="user-company" class="small muted"></span>
         </div>
         <div class="avatar" id="avatar">–</div>
+        <a class="btn btn-ghost small" href="/ui/account">Cuenta</a>
         <button class="btn btn-ghost small" id="logout">Salir</button>
       </div>
     </div>
@@ -33,8 +36,98 @@
 
   <main class="container" style="padding-top:26px; padding-bottom:60px">
 
+    <!-- Perfil de Negocio Banner / Summary -->
+    <section id="profile" class="card" style="border-left: 4px solid var(--accent); background: rgba(59, 130, 246, 0.03);">
+      <div class="card-head">
+        <div>
+          <div class="eyebrow">Contexto de Negocio & IA</div>
+          <h2 style="margin-top:4px">Perfil de Riesgo Adaptativo</h2>
+        </div>
+        <button class="btn btn-primary small" id="open-profile-btn" type="button">📝 Configurar Perfil de Negocio</button>
+      </div>
+      <div id="profile-summary-view" class="row gap-16" style="flex-wrap:wrap; align-items:center; justify-content:space-between">
+        <div class="stack gap-8">
+          <div class="row gap-8 align-center">
+            <span class="muted small">Sector:</span> <strong id="prof-sector-badge">No configurado</strong>
+            <span class="chip" id="prof-posture-chip">Sin evaluación</span>
+          </div>
+          <p class="small muted" id="prof-narrative" style="max-width:600px; margin:0">
+            Responde nuestro cuestionario inteligente pre-escaneo para que la IA y el escáner ajusten la severidad según tu stack y datos sensibles.
+          </p>
+        </div>
+        <div class="stack gap-4" style="min-width:200px">
+          <span class="small muted">Joyas de la corona:</span>
+          <div id="prof-crown-list" class="row gap-4 flex-wrap"><span class="chip small">—</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modal Cuestionario Inteligente -->
+    <div id="profile-modal" class="modal-backdrop" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+      <div class="card" style="max-width:640px; width:100%; max-height:90vh; overflow-y:auto; background:var(--bg-card, #121824); border:1px solid var(--line, #232d3f); padding:24px; border-radius:12px;">
+        <div class="card-head" style="margin-bottom:16px">
+          <div>
+            <div class="eyebrow">Onboarding Inteligente</div>
+            <h2 style="margin-top:4px">Cuestionario de Contexto de Negocio</h2>
+          </div>
+          <button class="btn btn-ghost small" id="close-profile-btn" type="button">✕</button>
+        </div>
+        <form id="profile-form" class="stack gap-16">
+          <div class="field">
+            <label for="pq-sector"><strong>1. ¿En qué sector opera tu aplicación?</strong></label>
+            <select class="input" id="pq-sector" required>
+              <option value="saas">SaaS / Software B2B</option>
+              <option value="ecommerce">E-commerce / Tienda Online</option>
+              <option value="fintech">Fintech / Pagos / Banca</option>
+              <option value="health">Salud / Datos Médicos</option>
+              <option value="education">Educación</option>
+              <option value="marketplace">Marketplace / Plataforma</option>
+              <option value="personal">Proyecto Personal / Portafolio</option>
+              <option value="other">Otro</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="pq-desc"><strong>2. En una o dos frases, ¿qué hace tu aplicación?</strong></label>
+            <textarea class="input" id="pq-desc" rows="2" placeholder="Ej: Vendemos ropa online y guardamos pedidos y datos de clientes en Supabase." required></textarea>
+          </div>
+          <div class="field">
+            <label><strong>3. ¿Qué datos sensibles maneja tu aplicación?</strong></label>
+            <div class="grid-2 gap-8 mt-4" style="font-size:13px">
+              <label class="row gap-8"><input type="checkbox" name="pq-data" value="payments"/> Pagos / Tarjetas (PCI)</label>
+              <label class="row gap-8"><input type="checkbox" name="pq-data" value="pii"/> Datos personales (email, tel)</label>
+              <label class="row gap-8"><input type="checkbox" name="pq-data" value="gov_id"/> Documentos de identidad</label>
+              <label class="row gap-8"><input type="checkbox" name="pq-data" value="credentials"/> Contraseñas / Credenciales</label>
+              <label class="row gap-8"><input type="checkbox" name="pq-data" value="health"/> Datos de salud</label>
+              <label class="row gap-8"><input type="checkbox" name="pq-data" value="none"/> Ninguno sensible / público</label>
+            </div>
+          </div>
+          <div class="field">
+            <label><strong>4. ¿Qué tecnología o stack usas?</strong></label>
+            <div class="grid-2 gap-8 mt-4" style="font-size:13px">
+              <label class="row gap-8"><input type="checkbox" name="pq-stack" value="supabase"/> Supabase</label>
+              <label class="row gap-8"><input type="checkbox" name="pq-stack" value="firebase"/> Firebase</label>
+              <label class="row gap-8"><input type="checkbox" name="pq-stack" value="custom_api"/> Backend propio / API REST</label>
+              <label class="row gap-8"><input type="checkbox" name="pq-stack" value="wordpress"/> WordPress</label>
+            </div>
+          </div>
+          <div class="field">
+            <label for="pq-concern"><strong>5. ¿Cuál es tu mayor preocupación de seguridad?</strong></label>
+            <select class="input" id="pq-concern">
+              <option value="leak">Fuga de datos de clientes</option>
+              <option value="ato">Robo de cuentas / accesos</option>
+              <option value="downtime">Caída del servicio</option>
+              <option value="defacement">Alteración no autorizada del sitio</option>
+            </select>
+          </div>
+          <div class="row gap-12" style="justify-content:flex-end; margin-top:8px">
+            <button class="btn btn-primary" type="submit" id="save-profile-submit">Guardar Contexto</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- Scan launcher -->
-    <section id="scan" class="card">
+    <section id="scan" class="card mt-16">
       <div class="card-head">
         <div>
           <div class="eyebrow">Auditoría</div>
@@ -110,6 +203,17 @@
       </section>
     </div>
 
+    <!-- Monitoreo e Historial -->
+    <section id="history" class="card mt-16">
+      <div class="card-head">
+        <div><div class="eyebrow">Monitoreo Continuo</div><h2 style="margin-top:4px">Historial y Tendencia de Seguridad</h2></div>
+        <span class="small muted" id="history-stats">0 escaneos registrados</span>
+      </div>
+      <div id="history-list" class="stack gap-8">
+        <div class="empty">Ejecuta tu primer escaneo para habilitar el seguimiento de tendencias.</div>
+      </div>
+    </section>
+
     <!-- Findings -->
     <section id="findings" class="card mt-16">
       <div class="card-head">
@@ -149,32 +253,30 @@
       <div id="entities-list"><div class="empty">Cada vulnerabilidad se registra una sola vez. Escanea para poblar la memoria.</div></div>
     </section>
 
-    <!-- Settings Section -->
-    <section id="settings" class="card mt-16">
+    <!-- Plan SaaS & Uso -->
+    <section id="plan" class="card mt-16" style="border-top: 3px solid var(--accent)">
       <div class="card-head">
-        <div><div class="eyebrow">Canales de comunicación</div><h2 style="margin-top:4px">Ajustes de notificaciones</h2></div>
+        <div>
+          <div class="eyebrow">Suscripción B2B</div>
+          <h2 style="margin-top:4px">Tu Plan y Cuota de Escaneos</h2>
+        </div>
+        <span class="chip" id="plan-tier-chip">Plan Free</span>
       </div>
-      <form id="settings-form" style="max-width: 480px; margin-top: 16px;">
-        <div style="margin-bottom: 16px;">
-          <label class="small label muted" for="settings-token" style="display: block; margin-bottom: 6px; font-weight: 600;">Telegram Bot Token</label>
-          <input class="input" id="settings-token" type="text" placeholder="123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ" style="width: 100%; box-sizing: border-box; font-family: var(--font-mono);"/>
-          <span class="small muted" style="display: block; margin-top: 4px; font-size: 11px;">Token de API de tu Bot de Telegram (obtenido desde @BotFather).</span>
+      <div class="row gap-16" style="flex-wrap:wrap; align-items:center; justify-content:space-between">
+        <div class="stack gap-8 grow" style="min-width:260px">
+          <div class="row gap-12" style="justify-content:space-between">
+            <span class="small muted">Escaneos realizados:</span>
+            <strong id="plan-usage-text">0 / 5</strong>
+          </div>
+          <div style="background:var(--line, #232d3f); height:8px; border-radius:4px; overflow:hidden">
+            <div id="plan-bar" style="background:var(--accent); width:0%; height:100%"></div>
+          </div>
         </div>
-        <div style="margin-bottom: 16px;">
-          <label class="small label muted" for="settings-chat" style="display: block; margin-bottom: 6px; font-weight: 600;">Telegram Chat ID</label>
-          <input class="input" id="settings-chat" type="text" placeholder="987654321" style="width: 100%; box-sizing: border-box; font-family: var(--font-mono);"/>
-          <span class="small muted" style="display: block; margin-top: 4px; font-size: 11px;">ID numérico de tu cuenta de Telegram o canal (puedes obtenerlo enviando un mensaje al bot @userinfobot).</span>
+        <div class="row gap-8">
+          <button class="btn small" id="upgrade-pro-btn" type="button">Cambiar a Plan Pro ($29/m)</button>
+          <button class="btn btn-ghost small" id="upgrade-ent-btn" type="button">Marca Blanca Agencias</button>
         </div>
-        <div class="row gap-12" style="margin-top: 20px; align-items: center;">
-          <button class="btn btn-primary" id="save-settings-btn" type="submit">Guardar configuración</button>
-          <button class="btn" id="test-telegram-btn" type="button">Enviar prueba</button>
-          <span id="settings-status" class="small" style="font-weight: 500;"></span>
-        </div>
-        <p class="small muted" style="margin-top:14px; max-width:480px">
-          Cada cuenta usa su <b>propio bot</b>. Configura aquí tu token de @BotFather y tu chat ID:
-          tus alertas y remediaciones llegarán solo a tu Telegram, aislado del resto de usuarios.
-        </p>
-      </form>
+      </div>
     </section>
 
   </main>
@@ -182,3 +284,4 @@
   <script src="/ui/assets/app.js"></script>
 </body>
 </html>
+

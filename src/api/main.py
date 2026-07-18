@@ -66,6 +66,7 @@ from scanner.services.cognitive_brain import (
 )
 from api.auth import AuthService, AuthError, User, SESSION_COOKIE
 from api.tenancy import TenancyManager, UserContext
+import api.business_profile as business_profile
 
 # ============================================================
 # App Setup
@@ -189,6 +190,25 @@ class SettingsRequest(BaseModel):
     """Solicitud de actualización de configuraciones del usuario."""
     telegram_bot_token: Optional[str] = None
     telegram_chat_id: Optional[str] = None
+    alert_level: Optional[str] = "ALL"  # ALL | CRITICAL_ONLY | HIGH_AND_CRITICAL
+    remediation_tone: Optional[str] = "concise"  # concise | technical | explanatory
+
+
+class BusinessProfileRequest(BaseModel):
+    """Respuestas del cuestionario inteligente pre-escaneo."""
+    sector: str
+    description: str
+    data: list = Field(default_factory=list)
+    stack: list = Field(default_factory=list)
+    surface: Optional[list] = Field(default_factory=list)
+    users: Optional[str] = "pre"
+    compliance: Optional[list] = Field(default_factory=list)
+    concern: Optional[str] = "leak"
+
+
+class PlanRequest(BaseModel):
+    """Actualización simulada del plan SaaS."""
+    plan: str
 
 
 class RemediationSendRequest(BaseModel):
@@ -354,7 +374,19 @@ def _run_scan_pipeline(ctx: UserContext, scan_id: str, request: ScanRequest) -> 
             level = "ALERT" if sev == "CRITICAL" else "WARN" if sev == "HIGH" else "INFO"
             _append_event(ctx, scan_id, level, f"[{sev}] {title}", "SECOPS")
 
+        # PASO 1b: Re-ponderación basada en el Perfil de Negocio del usuario
+        biz_profile = ctx.get_business_profile()
+        if biz_profile and scan_results.get("findings"):
+            scan_results["findings"] = business_profile.reweight_findings(scan_results["findings"], biz_profile)
+            counts = business_profile.recompute_counts(scan_results["findings"])
+            scan_results["critical_count"] = counts["critical"]
+            scan_results["high_count"] = counts["high"]
+            scan_results["medium_count"] = counts["medium"]
+            scan_results["total_findings"] = counts["total"]
+            _append_event(ctx, scan_id, "INFO", f"Ponderado con contexto de negocio ({biz_profile.get('sector', 'general')})", "SECOPS")
+
         # PASO 2: Cerebro cognitivo (cache causal)
+
         scan_fingerprint = None
         brain_record = None
         brain_record_id = None
@@ -541,8 +573,14 @@ def _run_scan_pipeline(ctx: UserContext, scan_id: str, request: ScanRequest) -> 
         job["result"] = result
         job["updated_at"] = datetime.utcnow().isoformat()
         ctx.latest_scan = result
+        try:
+            score_val = result["security_score"] if isinstance(result.get("security_score"), int) else 50
+            ctx.save_scan_history(scan_id, request.repo_url, score_val, len(result.get("findings", [])))
+        except Exception as e:
+            print(f"[!] Error guardando historial de scan: {e}")
         _append_event(ctx, scan_id, "OK", f"Pipeline completado en {latency_ms}ms", "ORCHESTRATOR")
         return result
+
 
     except Exception as e:
         job["status"] = "failed"
@@ -799,8 +837,11 @@ async def update_settings(request: SettingsRequest, user: User = Depends(require
     ctx = tenants.get(user.id)
     if request.telegram_bot_token is not None:
         token = request.telegram_bot_token.strip()
-        if token and not token.endswith("..."):
-            ctx.set_setting("telegram_bot_token", token)
+        if token == "__clear__":
+            ctx.set_setting("telegram_bot_token", "")  # borrar credencial
+        elif token and not token.endswith("..."):
+            ctx.set_setting("telegram_bot_token", token)  # cifrado en reposo
+        # (token vacío o enmascarado sin cambios -> no se toca)
     if request.telegram_chat_id is not None:
         chat_id = request.telegram_chat_id.strip()
         ctx.set_setting("telegram_chat_id", chat_id)
@@ -824,6 +865,111 @@ async def test_telegram(user: User = Depends(require_user)):
         raise HTTPException(status_code=400,
                             detail=f"Telegram rechazó el mensaje: {res.get('description') or res.get('error')}")
     return {"status": "ok", "message": "Mensaje de prueba enviado a tu Telegram."}
+
+
+# ============================================================
+# Endpoints — Cuestionario Inteligente & Perfil de Negocio
+# ============================================================
+
+@app.get("/api/v1/business-profile/schema")
+async def get_business_profile_schema(user: User = Depends(require_user)):
+    """Devuelve las preguntas del cuestionario (esquema adaptativo)."""
+    ctx = tenants.get(user.id)
+    profile = ctx.get_business_profile() or {}
+    questions = business_profile.visible_questions(profile)
+    return {
+        "status": "ok",
+        "questions": questions,
+        "raw_schema": business_profile.QUESTION_SCHEMA
+    }
+
+
+@app.get("/api/v1/business-profile")
+async def get_business_profile(user: User = Depends(require_user)):
+    """Obtiene el perfil de negocio guardado y la síntesis de riesgo."""
+    ctx = tenants.get(user.id)
+    profile = ctx.get_business_profile()
+    if not profile:
+        return {"status": "empty", "profile": None, "risk_summary": None}
+    summary = business_profile.ai_risk_summary(profile)
+    return {
+        "status": "ok",
+        "profile": profile,
+        "risk_summary": summary
+    }
+
+
+@app.post("/api/v1/business-profile")
+async def save_business_profile(request: BusinessProfileRequest, user: User = Depends(require_user)):
+    """Guarda las respuestas del cuestionario y sintetiza el modelo de riesgo."""
+    ctx = tenants.get(user.id)
+    profile_data = request.dict()
+    ctx.set_business_profile(profile_data)
+    
+    # Sintetizar modelo de riesgo (con OpenAI o heurística)
+    summary = business_profile.ai_risk_summary(profile_data)
+
+    # Ingestar nodo de negocio en el Grafo Canónico (Memoria de Entidad Canónica)
+    try:
+        ctx.canonical.resolve_identity(
+            entity_type=business_profile.EntityType.SERVICE if hasattr(business_profile, 'EntityType') else "Service",
+            normalized_key=f"business:{user.id}",
+            attributes={
+                "name": f"Negocio ({request.sector})",
+                "sector": request.sector,
+                "data_handled": request.data,
+                "stack": request.stack,
+                "risk_posture": summary.get("risk_posture", "medio")
+            },
+            evidence_summary=f"Perfil de negocio configurado: {request.description[:100]}"
+        )
+    except Exception as e:
+        print(f"[!] Error al ingestar nodo de negocio en grafo: {e}")
+
+    return {
+        "status": "ok",
+        "message": "Perfil de negocio guardado exitosamente.",
+        "profile": profile_data,
+        "risk_summary": summary
+    }
+
+
+# ============================================================
+# Endpoints — Monitoreo Post-Escaneo e Historial
+# ============================================================
+
+@app.get("/api/v1/scans/history")
+async def get_scan_history_endpoint(user: User = Depends(require_user)):
+    """Obtiene la tendencia de puntuación e historial de escaneos."""
+    ctx = tenants.get(user.id)
+    history = ctx.get_scan_history(limit=20)
+    avg_score = int(sum(h["score"] for h in history) / len(history)) if history else 0
+    return {
+        "status": "ok",
+        "total_scans": len(history),
+        "avg_score": avg_score,
+        "history": history
+    }
+
+
+# ============================================================
+# Endpoints — Planes y Uso SaaS
+# ============================================================
+
+@app.get("/api/v1/billing/plan")
+async def get_plan_endpoint(user: User = Depends(require_user)):
+    """Obtiene el plan SaaS actual del usuario y su cuota de uso."""
+    ctx = tenants.get(user.id)
+    return {"status": "ok", **ctx.get_plan()}
+
+
+@app.post("/api/v1/billing/plan")
+async def update_plan_endpoint(req: PlanRequest, user: User = Depends(require_user)):
+    """Actualiza el plan SaaS del usuario (simulación B2B)."""
+    ctx = tenants.get(user.id)
+    ctx.set_plan(req.plan)
+    return {"status": "ok", "message": f"Plan actualizado a {req.plan}.", **ctx.get_plan()}
+
 
 
 # ============================================================
@@ -1173,6 +1319,7 @@ WEB_PAGES = {
     "app": "app.html",
     "dashboard": "app.html",
     "audit": "app.html",
+    "account": "account.html",
 }
 
 # Alias legacy de ui_stitch (se mantienen accesibles con /ui/legacy/...)
@@ -1232,7 +1379,7 @@ async def serve_ui_screen(screen: str, request: Request):
     """Sirve el front-end nuevo. Las páginas de app exigen sesión (redirige a login)."""
     if screen in WEB_PAGES:
         # Gating server-side para páginas autenticadas.
-        if screen in ("app", "dashboard", "audit") and not get_current_user(request):
+        if screen in ("app", "dashboard", "audit", "account") and not get_current_user(request):
             return RedirectResponse(url="/ui/login")
         page = WEB_DIR / WEB_PAGES[screen]
         if page.exists():

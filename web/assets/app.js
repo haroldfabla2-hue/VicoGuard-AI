@@ -279,15 +279,86 @@
     }
   }
 
-  // ---- settings ----
-  async function loadSettings() {
+  // ---- business profile, history & saas plan ----
+  async function loadBusinessProfile() {
     try {
-      const res = await api("/api/v1/settings");
+      const res = await api("/api/v1/business-profile");
       if (!res.ok) return;
-      const d = await res.json();
-      $("settings-token").value = d.telegram_bot_token || "";
-      $("settings-chat").value = d.telegram_chat_id || "";
-    } catch (_) {}
+      const data = await res.json();
+      if (data.profile) {
+        $("prof-sector-badge").textContent = (data.profile.sector || "general").toUpperCase();
+        const summary = data.risk_summary || {};
+        const chip = $("prof-posture-chip");
+        chip.textContent = "Postura: " + (summary.risk_posture || "media").toUpperCase();
+        chip.className = "chip " + (summary.risk_posture === "alto" ? "critical" : summary.risk_posture === "bajo" ? "low" : "high");
+        $("prof-narrative").textContent = summary.narrative || data.profile.description || "";
+        const crownWrap = $("prof-crown-list");
+        crownWrap.innerHTML = "";
+        const jewels = summary.crown_jewels || data.profile.data || [];
+        if (jewels.length) {
+          jewels.forEach(j => {
+            const span = document.createElement("span");
+            span.className = "chip small";
+            span.textContent = j;
+            crownWrap.appendChild(span);
+          });
+        } else {
+          crownWrap.innerHTML = '<span class="chip small">Datos generales</span>';
+        }
+      }
+    } catch (e) {
+      console.warn("Error cargando perfil de negocio:", e);
+    }
+  }
+
+  async function loadScanHistory() {
+    try {
+      const res = await api("/api/v1/scans/history");
+      if (!res.ok) return;
+      const data = await res.json();
+      const list = $("history-list");
+      const stats = $("history-stats");
+      if (stats) stats.textContent = (data.total_scans || 0) + " escaneos · Promedio: " + (data.avg_score || 0) + "/100";
+      if (!data.history || !data.history.length) {
+        list.innerHTML = '<div class="empty">Ejecuta tu primer escaneo para habilitar el seguimiento de tendencias.</div>';
+        return;
+      }
+      list.innerHTML = "";
+      data.history.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "row gap-12 align-center justify-between";
+        div.style.padding = "10px 14px";
+        div.style.borderBottom = "1px solid var(--line, #232d3f)";
+        const scoreCol = item.score >= 80 ? "var(--accent)" : item.score >= 50 ? "var(--high)" : "var(--critical)";
+        div.innerHTML = `
+          <div class="stack gap-4">
+            <strong style="font-size:14px">${escapeHtml(item.target)}</strong>
+            <span class="small muted">${escapeHtml(item.created_at)}</span>
+          </div>
+          <div class="row gap-12 align-center">
+            <span class="chip small">${item.findings_count} hallazgos</span>
+            <strong style="color:${scoreCol}; font-size:16px">${item.score}/100</strong>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+    } catch (e) {
+      console.warn("Error cargando historial de escaneos:", e);
+    }
+  }
+
+  async function loadSaaSPlan() {
+    try {
+      const res = await api("/api/v1/billing/plan");
+      if (!res.ok) return;
+      const data = await res.json();
+      $("plan-tier-chip").textContent = "Plan " + data.plan;
+      $("plan-usage-text").textContent = data.scans_used + " / " + (data.scans_limit >= 999 ? "∞" : data.scans_limit);
+      const pct = Math.min(100, Math.round((data.scans_used / (data.scans_limit || 1)) * 100));
+      $("plan-bar").style.width = pct + "%";
+    } catch (e) {
+      console.warn("Error cargando plan SaaS:", e);
+    }
   }
 
   // ---- init ----
@@ -307,38 +378,6 @@
       if (url) runScan(url, $("notify").checked);
     });
 
-    const settingsForm = $("settings-form");
-    if (settingsForm) {
-      settingsForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const statusEl = $("settings-status");
-        statusEl.textContent = "Guardando...";
-        statusEl.style.color = "var(--blue)";
-        try {
-          const res = await api("/api/v1/settings", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              telegram_bot_token: $("settings-token").value.trim(),
-              telegram_chat_id: $("settings-chat").value.trim()
-            })
-          });
-          if (res.ok) {
-            statusEl.textContent = "✓ Configuración guardada exitosamente.";
-            statusEl.style.color = "var(--secure)";
-            await loadSettings();
-          } else {
-            const err = await res.json();
-            statusEl.textContent = "❌ " + (err.detail || "Error al guardar.");
-            statusEl.style.color = "var(--critical)";
-          }
-        } catch (ex) {
-          statusEl.textContent = "❌ Error de conexión.";
-          statusEl.style.color = "var(--critical)";
-        }
-      });
-    }
-
     // Reporte
     const reportBtn = $("report-btn");
     if (reportBtn) reportBtn.addEventListener("click", () => {
@@ -356,26 +395,61 @@
       if (b) sendRemediation({ finding_index: Number(b.getAttribute("data-send")) }, b);
     });
 
-    // Probar Telegram
-    const testBtn = $("test-telegram-btn");
-    if (testBtn) testBtn.addEventListener("click", async () => {
-      const st = $("settings-status");
-      testBtn.disabled = true; st.textContent = "Enviando prueba…"; st.style.color = "var(--blue)";
-      try {
-        const res = await api("/api/v1/settings/test", { method: "POST" });
-        const d = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(d.detail || "Error");
-        st.textContent = "✓ Prueba enviada. Revisa tu Telegram."; st.style.color = "var(--secure)";
-      } catch (ex) {
-        st.textContent = "❌ " + ex.message; st.style.color = "var(--critical)";
-      } finally { testBtn.disabled = false; }
+    // Modal Cuestionario Perfil de Negocio
+    const openModalBtn = $("open-profile-btn");
+    const closeModalBtn = $("close-profile-btn");
+    const profileModal = $("profile-modal");
+    if (openModalBtn) openModalBtn.addEventListener("click", () => { profileModal.style.display = "flex"; });
+    if (closeModalBtn) closeModalBtn.addEventListener("click", () => { profileModal.style.display = "none"; });
+
+    const profileForm = $("profile-form");
+    if (profileForm) {
+      profileForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const sector = $("pq-sector").value;
+        const description = $("pq-desc").value.trim();
+        const dataArr = Array.from(document.querySelectorAll('input[name="pq-data"]:checked')).map(cb => cb.value);
+        const stackArr = Array.from(document.querySelectorAll('input[name="pq-stack"]:checked')).map(cb => cb.value);
+        const concern = $("pq-concern").value;
+        
+        const submitBtn = $("save-profile-submit");
+        submitBtn.disabled = true; submitBtn.textContent = "Sintetizando modelo de riesgo...";
+        try {
+          const res = await api("/api/v1/business-profile", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sector, description, data: dataArr, stack: stackArr, concern }),
+          });
+          if (!res.ok) throw new Error("Error al guardar perfil");
+          profileModal.style.display = "none";
+          loadBusinessProfile();
+        } catch (ex) {
+          alert("Error: " + ex.message);
+        } finally {
+          submitBtn.disabled = false; submitBtn.textContent = "Guardar Contexto";
+        }
+      });
+    }
+
+    // Botones de cambio de Plan SaaS
+    const upgradePro = $("upgrade-pro-btn");
+    const upgradeEnt = $("upgrade-ent-btn");
+    if (upgradePro) upgradePro.addEventListener("click", async () => {
+      await api("/api/v1/billing/plan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ plan: "Pro" }) });
+      loadSaaSPlan();
+    });
+    if (upgradeEnt) upgradeEnt.addEventListener("click", async () => {
+      await api("/api/v1/billing/plan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ plan: "Enterprise" }) });
+      loadSaaSPlan();
     });
 
-    // Carga estado previo del usuario (si ya escaneó antes en esta sesión)
+    // Carga estado previo del usuario
     try {
       const latest = await (await api("/api/v1/scan/latest")).json();
       if (latest.result) renderResult(latest.result);
     } catch (_) {}
-    loadStats(); loadEntities(); loadSettings(); loadTopology();
+    loadStats(); loadEntities(); loadTopology();
+    loadBusinessProfile(); loadScanHistory(); loadSaaSPlan();
   })();
 })();
+

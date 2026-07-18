@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Configuración de cuenta · VicoGuard AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/ui/assets/styles.css"/>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container inner">
+      <div class="brand"><span class="mark">V</span><span class="name"><b>VicoGuard</b> AI</span></div>
+      <nav class="nav grow">
+        <a href="/ui/app">Dashboard</a>
+        <a href="/ui/account" class="active">Cuenta</a>
+      </nav>
+      <div class="usermenu">
+        <div class="stack" style="align-items:flex-end; line-height:1.2">
+          <span id="user-name" class="small" style="font-weight:600">—</span>
+          <span id="user-company" class="small muted"></span>
+        </div>
+        <div class="avatar" id="avatar">–</div>
+        <button class="btn btn-ghost small" id="logout">Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top:26px; padding-bottom:60px; max-width:760px">
+
+    <div class="eyebrow">Configuración de cuenta</div>
+    <h1 style="font-family:var(--font-display); font-weight:560; letter-spacing:-.02em; font-size:26px; margin:6px 0 22px">
+      Tu cuenta y notificaciones
+    </h1>
+
+    <!-- Perfil -->
+    <section class="card">
+      <div class="card-head"><div><div class="eyebrow">Perfil</div><h2 style="margin-top:4px">Datos de la cuenta</h2></div></div>
+      <div class="stack gap-12">
+        <div class="row gap-12" style="justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:12px">
+          <span class="muted small">Nombre</span><span id="pf-name" style="font-weight:600">—</span>
+        </div>
+        <div class="row gap-12" style="justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:12px">
+          <span class="muted small">Empresa</span><span id="pf-company" style="font-weight:600">—</span>
+        </div>
+        <div class="row gap-12" style="justify-content:space-between">
+          <span class="muted small">Correo</span><span id="pf-email" class="mono small">—</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Notificaciones -->
+    <section class="card mt-16">
+      <div class="card-head">
+        <div><div class="eyebrow">Notificaciones</div><h2 style="margin-top:4px">Telegram</h2></div>
+        <span id="tg-state" class="chip">no configurado</span>
+      </div>
+
+      <form id="settings-form" style="max-width:520px">
+        <div class="field" style="margin-bottom:16px">
+          <label for="settings-token">Bot Token</label>
+          <input class="input mono" id="settings-token" type="password" autocomplete="off"
+                 placeholder="123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ"/>
+          <span class="small muted" style="margin-top:4px">
+            Token de tu bot (de <b>@BotFather</b>). Se guarda <b>cifrado</b> en tu espacio aislado; nunca se muestra completo.
+          </span>
+        </div>
+        <div class="field" style="margin-bottom:16px">
+          <label for="settings-chat">Chat ID</label>
+          <input class="input mono" id="settings-chat" type="text" autocomplete="off" placeholder="987654321"/>
+          <span class="small muted" style="margin-top:4px">Tu chat o canal destino (obténlo con <b>@userinfobot</b>).</span>
+        </div>
+        <div class="row gap-12" style="margin-top:20px; align-items:center; flex-wrap:wrap">
+          <button class="btn btn-primary" id="save-settings-btn" type="submit">Guardar</button>
+          <button class="btn" id="test-telegram-btn" type="button">Enviar prueba</button>
+          <button class="btn btn-ghost small" id="clear-token-btn" type="button">Borrar token</button>
+          <span id="settings-status" class="small" style="font-weight:500"></span>
+        </div>
+      </form>
+
+      <p class="small muted" style="margin-top:18px; border-top:1px solid var(--line); padding-top:14px">
+        🔒 Cada cuenta usa <b>su propio bot</b>, aislado del resto. Tus alertas y remediaciones
+        llegan solo a tu Telegram. El token se cifra en reposo (AES vía Fernet) y la API solo
+        devuelve una versión enmascarada.
+      </p>
+    </section>
+  </main>
+
+  <script src="/ui/assets/account.js"></script>
+</body>
+</html>
