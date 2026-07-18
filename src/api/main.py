@@ -152,6 +152,12 @@ class FeedbackRequest(BaseModel):
     notes: Optional[str] = ""
 
 
+class SettingsRequest(BaseModel):
+    """Solicitud de actualización de configuraciones del usuario."""
+    telegram_bot_token: Optional[str] = None
+    telegram_chat_id: Optional[str] = None
+
+
 # ============================================================
 # Autenticación — dependencias
 # ============================================================
@@ -451,9 +457,12 @@ def _run_scan_pipeline(ctx: UserContext, scan_id: str, request: ScanRequest) -> 
             _append_event(ctx, scan_id, "INFO", "Despachando alerta a Telegram...", "ORCHESTRATOR")
             try:
                 ai_analysis["scan_id"] = scan_id
+                bot_token = ctx.get_setting("telegram_bot_token")
+                chat_id = ctx.get_setting("telegram_chat_id")
                 results = dispatcher.dispatch(
                     ai_analysis, channels=request.channels or ["telegram"],
                     threat_fingerprint=feedback_token, scan_id=feedback_token,
+                    bot_token=bot_token, chat_id=chat_id,
                 )
                 notification_sent = True
                 _append_event(ctx, scan_id, "OK", "Alerta enviada a Telegram", "ORCHESTRATOR")
@@ -652,7 +661,9 @@ async def ingest_telemetry(request: TelemetryRequest, background_tasks: Backgrou
             print(f"[!] brain.receive_threat telemetry error: {e}")
 
     if correlation.get("real_threats"):
-        background_tasks.add_task(_send_server_notification, correlation)
+        bot_token = ctx.get_setting("telegram_bot_token")
+        chat_id = ctx.get_setting("telegram_chat_id")
+        background_tasks.add_task(_send_server_notification, correlation, bot_token, chat_id)
 
     return {
         "status": "processed", "processed_events": len(request.events),
@@ -715,6 +726,39 @@ async def submit_feedback(request: FeedbackRequest, user: User = Depends(require
         "marked_as": "success" if request.success else "failed",
         "message": "Gracias. El cerebro de VicoGuard aprendió de tu feedback.",
     }
+
+
+@app.get("/api/v1/settings")
+async def get_settings(user: User = Depends(require_user)):
+    ctx = tenants.get(user.id)
+    bot_token = ctx.get_setting("telegram_bot_token", "")
+    chat_id = ctx.get_setting("telegram_chat_id", "")
+    
+    masked_token = ""
+    if bot_token:
+        if len(bot_token) > 10:
+            masked_token = bot_token[:6] + "..." + bot_token[-4:]
+        else:
+            masked_token = "Configurado"
+            
+    return {
+        "status": "ok",
+        "telegram_bot_token": masked_token,
+        "telegram_chat_id": chat_id,
+    }
+
+
+@app.post("/api/v1/settings")
+async def update_settings(request: SettingsRequest, user: User = Depends(require_user)):
+    ctx = tenants.get(user.id)
+    if request.telegram_bot_token is not None:
+        token = request.telegram_bot_token.strip()
+        if token and not token.endswith("..."):
+            ctx.set_setting("telegram_bot_token", token)
+    if request.telegram_chat_id is not None:
+        chat_id = request.telegram_chat_id.strip()
+        ctx.set_setting("telegram_chat_id", chat_id)
+    return {"status": "ok", "message": "Configuración guardada exitosamente."}
 
 
 # ============================================================
@@ -783,9 +827,9 @@ async def telegram_webhook(request: Request):
 # Background Tasks
 # ============================================================
 
-def _send_server_notification(correlation: dict):
+def _send_server_notification(correlation: dict, bot_token: str = None, chat_id: str = None):
     try:
-        dispatcher.telegram.send_server_alert(correlation)
+        dispatcher.telegram.send_server_alert(correlation, bot_token=bot_token, chat_id=chat_id)
     except Exception as e:
         print(f"[!] Error enviando alerta de servidor: {e}")
 

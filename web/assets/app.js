@@ -182,6 +182,17 @@
     }
   }
 
+  // ---- settings ----
+  async function loadSettings() {
+    try {
+      const res = await api("/api/v1/settings");
+      if (!res.ok) return;
+      const d = await res.json();
+      $("settings-token").value = d.telegram_bot_token || "";
+      $("settings-chat").value = d.telegram_chat_id || "";
+    } catch (_) {}
+  }
+
   // ---- init ----
   (async function init() {
     const user = await requireAuth();
@@ -198,11 +209,44 @@
       const url = $("url").value.trim();
       if (url) runScan(url, $("notify").checked);
     });
+
+    const settingsForm = $("settings-form");
+    if (settingsForm) {
+      settingsForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const statusEl = $("settings-status");
+        statusEl.textContent = "Guardando...";
+        statusEl.style.color = "var(--blue)";
+        try {
+          const res = await api("/api/v1/settings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              telegram_bot_token: $("settings-token").value.trim(),
+              telegram_chat_id: $("settings-chat").value.trim()
+            })
+          });
+          if (res.ok) {
+            statusEl.textContent = "✓ Configuración guardada exitosamente.";
+            statusEl.style.color = "var(--secure)";
+            await loadSettings();
+          } else {
+            const err = await res.json();
+            statusEl.textContent = "❌ " + (err.detail || "Error al guardar.");
+            statusEl.style.color = "var(--critical)";
+          }
+        } catch (ex) {
+          statusEl.textContent = "❌ Error de conexión.";
+          statusEl.style.color = "var(--critical)";
+        }
+      });
+    }
+
     // Carga estado previo del usuario (si ya escaneó antes en esta sesión)
     try {
       const latest = await (await api("/api/v1/scan/latest")).json();
       if (latest.result) renderResult(latest.result);
     } catch (_) {}
-    loadStats(); loadEntities();
+    loadStats(); loadEntities(); loadSettings();
   })();
 })();

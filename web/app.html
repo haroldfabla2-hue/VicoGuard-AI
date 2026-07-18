@@ -17,6 +17,7 @@
         <a href="#scan" class="active">Escaneo</a>
         <a href="#findings">Hallazgos</a>
         <a href="#memory">Memoria</a>
+        <a href="#settings">Configuración</a>
         <a href="/docs" target="_blank">API</a>
       </nav>
       <div class="usermenu">
@@ -124,6 +125,29 @@
         <span class="small muted" id="dedup-line"></span>
       </div>
       <div id="entities-list"><div class="empty">Cada vulnerabilidad se registra una sola vez. Escanea para poblar la memoria.</div></div>
+    </section>
+
+    <!-- Settings Section -->
+    <section id="settings" class="card mt-16">
+      <div class="card-head">
+        <div><div class="eyebrow">Canales de comunicación</div><h2 style="margin-top:4px">Ajustes de notificaciones</h2></div>
+      </div>
+      <form id="settings-form" style="max-width: 480px; margin-top: 16px;">
+        <div style="margin-bottom: 16px;">
+          <label class="small label muted" for="settings-token" style="display: block; margin-bottom: 6px; font-weight: 600;">Telegram Bot Token</label>
+          <input class="input" id="settings-token" type="text" placeholder="123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ" style="width: 100%; box-sizing: border-box; font-family: var(--font-mono);"/>
+          <span class="small muted" style="display: block; margin-top: 4px; font-size: 11px;">Token de API de tu Bot de Telegram (obtenido desde @BotFather).</span>
+        </div>
+        <div style="margin-bottom: 16px;">
+          <label class="small label muted" for="settings-chat" style="display: block; margin-bottom: 6px; font-weight: 600;">Telegram Chat ID</label>
+          <input class="input" id="settings-chat" type="text" placeholder="987654321" style="width: 100%; box-sizing: border-box; font-family: var(--font-mono);"/>
+          <span class="small muted" style="display: block; margin-top: 4px; font-size: 11px;">ID numérico de tu cuenta de Telegram o canal (puedes obtenerlo enviando un mensaje al bot @userinfobot).</span>
+        </div>
+        <div class="row gap-12" style="margin-top: 20px; align-items: center;">
+          <button class="btn btn-primary" id="save-settings-btn" type="submit">Guardar configuración</button>
+          <span id="settings-status" class="small" style="font-weight: 500;"></span>
+        </div>
+      </form>
     </section>
 
   </main>

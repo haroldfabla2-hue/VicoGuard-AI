@@ -32,6 +32,30 @@ class UserContext:
         self.scan_jobs: Dict[str, dict] = {}
         self.latest_scan: dict = {}
 
+    def get_setting(self, key: str, default: str = None) -> Optional[str]:
+        """Recupera una configuración de la base de datos aislada del usuario."""
+        import sqlite3
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                conn.execute("CREATE TABLE IF NOT EXISTS tenant_settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
+                row = conn.execute("SELECT value FROM tenant_settings WHERE key = ?", (key,)).fetchone()
+                return row[0] if row else default
+        except Exception as e:
+            print(f"[!] Error al obtener setting {key}: {e}")
+            return default
+
+    def set_setting(self, key: str, value: str):
+        """Guarda de forma segura una configuración en la base de datos aislada del usuario."""
+        import sqlite3
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                conn.execute("CREATE TABLE IF NOT EXISTS tenant_settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
+                conn.execute("INSERT OR REPLACE INTO tenant_settings (key, value) VALUES (?, ?)", (key, value))
+                conn.commit()
+        except Exception as e:
+            print(f"[!] Error al guardar setting {key}: {e}")
+            raise
+
 
 class TenancyManager:
     def __init__(self, base_dir: str):

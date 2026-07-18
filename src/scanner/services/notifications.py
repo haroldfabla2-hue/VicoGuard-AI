@@ -20,7 +20,7 @@ class TelegramNotifier:
         self.chat_id = os.getenv("TELEGRAM_CHAT_ID")
         self.api_url = f"https://api.telegram.org/bot{self.bot_token}"
 
-    def send_alert(self, ai_analysis: dict, threat_fingerprint: str = "", scan_id: str = "") -> dict:
+    def send_alert(self, ai_analysis: dict, threat_fingerprint: str = "", scan_id: str = "", bot_token: str = None, chat_id: str = None) -> dict:
         """Formatea y envía la alerta de vulnerabilidad por Telegram con botones inline."""
         score = ai_analysis.get("security_score", "?")
         try:
@@ -75,9 +75,9 @@ class TelegramNotifier:
             if buttons:
                 reply_markup = {"inline_keyboard": buttons}
 
-        return self._send_message(message, reply_markup=reply_markup)
+        return self._send_message(message, reply_markup=reply_markup, bot_token=bot_token, chat_id=chat_id)
 
-    def send_server_alert(self, correlation: dict) -> dict:
+    def send_server_alert(self, correlation: dict, bot_token: str = None, chat_id: str = None) -> dict:
         """Envía alerta de monitoreo de servidor correlacionada."""
         status = correlation.get("overall_status", "UNKNOWN")
         status_emoji = {"UNDER_ATTACK": "🚨", "SUSPICIOUS": "⚠️", "HEALTHY": "✅"}.get(status, "❓")
@@ -104,17 +104,19 @@ class TelegramNotifier:
 
         message += "\n\n_Powered by VicoGuard AI 🛡️_"
 
-        return self._send_message(message)
+        return self._send_message(message, bot_token=bot_token, chat_id=chat_id)
 
-    def _send_message(self, text: str, reply_markup: dict = None) -> dict:
+    def _send_message(self, text: str, reply_markup: dict = None, bot_token: str = None, chat_id: str = None) -> dict:
         """Envía un mensaje de texto por Telegram (opcionalmente con inline keyboard)."""
-        if not self.bot_token or not self.chat_id:
+        token = bot_token or self.bot_token
+        target_chat = chat_id or self.chat_id
+        if not token or not target_chat:
             print("[Telegram] TOKEN o CHAT_ID no configurados — skip")
             return {"ok": False, "error": "missing_credentials"}
 
-        url = f"{self.api_url}/sendMessage"
+        url = f"https://api.telegram.org/bot{token}/sendMessage"
         payload = {
-            "chat_id": self.chat_id,
+            "chat_id": target_chat,
             "text": text,
             "parse_mode": "Markdown",
         }
@@ -174,6 +176,8 @@ class NotificationDispatcher:
         channels: list = None,
         threat_fingerprint: str = "",
         scan_id: str = "",
+        bot_token: str = None,
+        chat_id: str = None,
     ) -> list:
         """Envía la alerta a todos los canales activos del usuario."""
         if channels is None:
@@ -188,6 +192,8 @@ class NotificationDispatcher:
                         ai_analysis,
                         threat_fingerprint=threat_fingerprint,
                         scan_id=scan_id or ai_analysis.get("scan_id", ""),
+                        bot_token=bot_token,
+                        chat_id=chat_id,
                     ),
                 })
             elif channel == "email":
