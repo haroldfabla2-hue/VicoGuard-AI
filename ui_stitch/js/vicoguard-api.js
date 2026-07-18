@@ -13,19 +13,24 @@
     return global.localStorage.getItem("vg_api_base") || DEFAULT_API;
   }
 
+  async function fetchWithCreds(url, options = {}) {
+    options.credentials = "include";
+    return fetch(url, options);
+  }
+
   const API = {
     base() {
       return getApiBase();
     },
 
     async health() {
-      const res = await fetch(`${getApiBase()}/api/v1/health`);
+      const res = await fetchWithCreds(`${getApiBase()}/api/v1/health`);
       if (!res.ok) throw new Error(`Health ${res.status}`);
       return res.json();
     },
 
     async startScan(repoUrl, notify = true) {
-      const res = await fetch(`${getApiBase()}/api/v1/scan/start`, {
+      const res = await fetchWithCreds(`${getApiBase()}/api/v1/scan/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -42,25 +47,25 @@
     },
 
     async getScan(scanId) {
-      const res = await fetch(`${getApiBase()}/api/v1/scan/${scanId}`);
+      const res = await fetchWithCreds(`${getApiBase()}/api/v1/scan/${scanId}`);
       if (!res.ok) throw new Error(`Scan status ${res.status}`);
       return res.json();
     },
 
     async getLatestScan() {
-      const res = await fetch(`${getApiBase()}/api/v1/scan/latest`);
+      const res = await fetchWithCreds(`${getApiBase()}/api/v1/scan/latest`);
       if (!res.ok) throw new Error(`Latest scan ${res.status}`);
       return res.json();
     },
 
     async getBrainStats() {
-      const res = await fetch(`${getApiBase()}/api/v1/brain/stats`);
+      const res = await fetchWithCreds(`${getApiBase()}/api/v1/brain/stats`);
       if (!res.ok) throw new Error(`Brain stats ${res.status}`);
       return res.json();
     },
 
     async submitFeedback(fingerprint, success) {
-      const res = await fetch(`${getApiBase()}/api/v1/brain/feedback`, {
+      const res = await fetchWithCreds(`${getApiBase()}/api/v1/brain/feedback`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

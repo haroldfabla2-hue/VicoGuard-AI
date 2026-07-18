@@ -611,6 +611,74 @@ async def get_scan_status(scan_id: str, user: User = Depends(require_user)):
     return job
 
 
+@app.get("/api/v1/scan/{scan_id}/export")
+async def export_scan_report(scan_id: str, user: User = Depends(require_user)):
+    ctx = tenants.get(user.id)
+    job = ctx.scan_jobs.get(scan_id)
+    if not job or job.get("status") != "completed":
+        raise HTTPException(status_code=404, detail="Reporte no disponible o scan no completado")
+
+    result = job.get("result", {})
+    
+    # Construir reporte en lenguaje natural y organizado
+    report_lines = [
+        f"# 🛡️ Reporte de Seguridad Ejecutivo — VicoGuard AI",
+        "",
+        f"**Objetivo Escaneado:** `{result.get('target_url')}`",
+        f"**Fecha del Reporte:** {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC",
+        f"**Score de Seguridad:** {result.get('security_score')}/100",
+        "",
+        "## 📝 Resumen Ejecutivo",
+        result.get("summary", "No se generó resumen ejecutivo."),
+        "",
+        "## 🔍 Hallazgos y Vulnerabilidades Detectadas",
+        ""
+    ]
+
+    findings = result.get("findings", [])
+    if not findings:
+        report_lines.append("✅ ¡Felicidades! No se detectaron vulnerabilidades en este análisis.")
+    else:
+        for idx, f in enumerate(findings, 1):
+            severity = f.get("severity", "INFO").upper()
+            title = f.get("title_business") or f.get("title_technical") or f.get("title") or "Vulnerabilidad"
+            analogy = f.get("analogy", "")
+            impact = f.get("impact", "")
+            steps = f.get("remediation_steps", [])
+            code = f.get("remediation_code", "")
+
+            report_lines.append(f"### {idx}. [{severity}] {title}")
+            if analogy:
+                report_lines.append(f"*💡 Explicación simple:* {analogy}")
+            if impact:
+                report_lines.append(f"*⚠️ Impacto para tu negocio:* {impact}")
+
+            report_lines.append("")
+            report_lines.append("**Pasos para solucionarlo:**")
+            if isinstance(steps, list):
+                for step in steps:
+                    report_lines.append(f"- {step}")
+            else:
+                report_lines.append(f"- {steps}")
+
+            if code:
+                report_lines.append("")
+                report_lines.append("**Código / Comando de remediación:**")
+                report_lines.append("```")
+                report_lines.append(code)
+                report_lines.append("```")
+            report_lines.append("")
+            report_lines.append("---")
+            report_lines.append("")
+
+    report_content = "\n".join(report_lines)
+
+    headers = {
+        "Content-Disposition": f"attachment; filename=Reporte_Seguridad_{scan_id[:8]}.md"
+    }
+    return Response(content=report_content, media_type="text/markdown", headers=headers)
+
+
 # ============================================================
 # Endpoints — Telemetría
 # ============================================================

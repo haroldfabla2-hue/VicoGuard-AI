@@ -78,6 +78,13 @@
       ? '<span class="muted">Análisis:</span> ' + escapeHtml(srcMap[result.source] || result.source) : "";
     $("summary").textContent = result.summary || "Escaneo completado.";
 
+    if (result.scan_id) {
+      $("export-btn").href = "/api/v1/scan/" + result.scan_id + "/export";
+      $("report-export-container").style.display = "block";
+    } else {
+      $("report-export-container").style.display = "none";
+    }
+
     const raw = result.scan_raw || {};
     $("kpi-critical").textContent = raw.critical ?? 0;
     $("kpi-critical-sub").textContent = (raw.total ?? 0) + " hallazgos en total";
