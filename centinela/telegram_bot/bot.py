@@ -48,6 +48,16 @@ logger = logging.getLogger(__name__)
 _MAX_ALERTAS = 10
 
 
+async def log_chat_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Logs the chat id for any incoming update -- not sensitive (just a
+    number, unlike the bot token), useful to bootstrap TELEGRAM_CHAT_ID in
+    .env for the proactive notify.py sender. Runs in a separate handler
+    group so it never blocks/shadows the real command handlers below."""
+    chat = update.effective_chat
+    if chat is not None:
+        logger.info("CHAT_ID visto: %s (tipo=%s)", chat.id, chat.type)
+
+
 async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """/status -- resumen priorizado del ledger completo."""
     message = interpret.summarize()
@@ -92,6 +102,7 @@ def build_application(token: str) -> Application:
     ``run_polling()``.
     """
     application = Application.builder().token(token).build()
+    application.add_handler(MessageHandler(filters.ALL, log_chat_id), group=-1)
     application.add_handler(CommandHandler("status", cmd_status))
     application.add_handler(CommandHandler("alertas", cmd_alertas))
     application.add_handler(CommandHandler("explicar", cmd_explicar))
