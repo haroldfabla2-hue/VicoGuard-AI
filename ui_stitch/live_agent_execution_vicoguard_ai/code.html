@@ -243,58 +243,9 @@
 </div>
 <!-- Canvas Grid Area -->
 <div class="flex-1 bg-grid-pattern relative flex items-center justify-center p-xl overflow-auto">
-<!-- Graph Container (Flex-based tree structure for UI layout) -->
-<div class="flex items-center gap-xl relative z-10 scale-95 transform-origin-left">
-<!-- Connecting Lines (SVG layered behind nodes) -->
-<svg class="absolute inset-0 w-full h-full pointer-events-none -z-10" style="min-width: 800px;">
-<path class="animate-[dash_20s_linear_infinite]" d="M 180 150 L 260 150" fill="none" stroke="rgba(255,255,255,0.2)" stroke-dasharray="4" stroke-width="2"></path>
-<path d="M 440 150 L 520 150" fill="none" stroke="rgba(255,255,255,0.2)" stroke-dasharray="4" stroke-width="2"></path>
-<path d="M 700 150 L 780 150" fill="none" stroke="rgba(255,59,92,0.6)" stroke-width="2"></path>
-</svg>
-<!-- Node 1: Entry Point -->
-<div class="w-44 bg-surface-container-low border border-white/10 rounded-lg p-sm shadow-xl flex flex-col gap-sm relative z-20">
-<div class="flex items-center justify-between border-b border-white/5 pb-sm">
-<span class="font-label-mono text-label-mono text-on-surface-variant text-[11px]">ENTRY</span>
-<span class="material-symbols-outlined text-[14px] text-primary">public</span>
-</div>
-<div id="topo-target" class="font-body-md text-body-md font-bold text-on-surface break-all">—</div>
-<div class="font-label-mono text-label-mono text-[10px] text-on-surface-variant bg-surface-container-high px-xs py-1 rounded inline-block w-fit">
-                                Target URL
-                            </div>
-</div>
-<!-- Node 2: App Server -->
-<div class="w-44 bg-surface-container-low border border-white/10 rounded-lg p-sm shadow-xl flex flex-col gap-sm relative z-20">
-<div class="flex items-center justify-between border-b border-white/5 pb-sm">
-<span class="font-label-mono text-label-mono text-on-surface-variant text-[11px]">GATEWAY</span>
-<span class="material-symbols-outlined text-[14px] text-tertiary-container">api</span>
-</div>
-<div class="font-body-md text-body-md font-bold text-on-surface">GraphQL API</div>
-<div class="font-label-mono text-label-mono text-[10px] text-on-surface-variant bg-surface-container-high px-xs py-1 rounded inline-block w-fit">
-                                Node.js / Express
-                            </div>
-</div>
-<!-- Node 3: Database -->
-<div class="w-44 bg-surface-container-low border border-white/10 rounded-lg p-sm shadow-xl flex flex-col gap-sm relative z-20">
-<div class="flex items-center justify-between border-b border-white/5 pb-sm">
-<span class="font-label-mono text-label-mono text-on-surface-variant text-[11px]">DATA STORE</span>
-<span class="material-symbols-outlined text-[14px] text-secondary">database</span>
-</div>
-<div class="font-body-md text-body-md font-bold text-on-surface">postgres-01</div>
-<div class="font-label-mono text-label-mono text-[10px] text-on-surface-variant bg-surface-container-high px-xs py-1 rounded inline-block w-fit">
-                                PostgreSQL 15
-                            </div>
-</div>
-<!-- Node 4: Vulnerability (Flashing) -->
-<div class="w-48 bg-error-container/20 border border-error/80 rounded-lg p-sm shadow-xl flex flex-col gap-sm relative z-20 pulse-glow backdrop-blur-md">
-<div class="flex items-center justify-between border-b border-error/20 pb-sm">
-<span class="font-label-mono text-label-mono text-error font-bold text-[11px]">CRITICAL FLAW</span>
-<span class="material-symbols-outlined text-[14px] text-error animate-pulse">warning</span>
-</div>
-<div class="font-body-md text-body-md font-bold text-on-surface">RLS UNPROTECTED</div>
-<div class="font-label-mono text-label-mono text-[10px] text-error bg-error-container/30 border border-error/30 px-xs py-1 rounded inline-block w-fit">
-                                Table: 'users'
-                            </div>
-</div>
+<!-- Graph Container (rendered dynamically from real scan findings) -->
+<div id="topo-graph" class="flex items-center gap-lg relative z-10 scale-95 transform-origin-left flex-wrap justify-center">
+<div class="font-label-mono text-label-mono text-on-surface-variant opacity-70">Sin topología — ejecuta un escaneo para mapear la superficie real.</div>
 </div>
 </div>
 </section>
@@ -305,7 +256,7 @@
 (function () {
   const terminal = document.getElementById('live-terminal');
   const sessionEl = document.getElementById('session-id');
-  const topoEl = document.getElementById('topo-target');
+  const topoGraph = document.getElementById('topo-graph');
   const agentStatus = document.querySelector('header .text-primary.font-label-mono');
   let lastRendered = 0;
   let pollTimer = null;
@@ -316,6 +267,75 @@
       localStorage.getItem('vg_latest_scan_id') ||
       ''
     );
+  }
+
+  const SEV_ORDER = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, LOW: 3, INFO: 4 };
+
+  function topoNode({ label, icon, iconClass, title, sub, alert }) {
+    const border = alert
+      ? 'bg-error-container/20 border-error/80 pulse-glow'
+      : 'bg-surface-container-low border-white/10';
+    const labelCls = alert ? 'text-error font-bold' : 'text-on-surface-variant';
+    const subCls = alert
+      ? 'text-error bg-error-container/30 border border-error/30'
+      : 'text-on-surface-variant bg-surface-container-high';
+    return `
+      <div class="w-44 ${border} border rounded-lg p-sm shadow-xl flex flex-col gap-sm relative z-20">
+        <div class="flex items-center justify-between border-b border-white/5 pb-sm">
+          <span class="font-label-mono text-label-mono ${labelCls} text-[11px]">${escapeHtml(label)}</span>
+          <span class="material-symbols-outlined text-[14px] ${iconClass}">${icon}</span>
+        </div>
+        <div class="font-body-md text-body-md font-bold text-on-surface break-all">${escapeHtml(title)}</div>
+        <div class="font-label-mono text-label-mono text-[10px] ${subCls} px-xs py-1 rounded inline-block w-fit">${escapeHtml(sub)}</div>
+      </div>`;
+  }
+
+  function topoEdge(alert) {
+    const color = alert ? 'rgba(255,59,92,0.6)' : 'rgba(255,255,255,0.2)';
+    return `<svg width="48" height="8" class="shrink-0"><line x1="0" y1="4" x2="48" y2="4" stroke="${color}" stroke-width="2" stroke-dasharray="4"/></svg>`;
+  }
+
+  function renderTopology(job) {
+    if (!topoGraph) return;
+    const target = job.target_url || (job.result && job.result.target_url) || '';
+    const findings = (job.result && job.result.findings) || [];
+
+    if (!target) {
+      topoGraph.innerHTML = '<div class="font-label-mono text-label-mono text-on-surface-variant opacity-70">Sin topología — ejecuta un escaneo para mapear la superficie real.</div>';
+      return;
+    }
+
+    const host = shortHost(target);
+    const sorted = findings.slice().sort((a, b) =>
+      (SEV_ORDER[String(a.severity).toUpperCase()] ?? 9) - (SEV_ORDER[String(b.severity).toUpperCase()] ?? 9));
+    const top = sorted.filter(f => ['CRITICAL', 'HIGH'].includes(String(f.severity).toUpperCase())).slice(0, 4);
+
+    let html = topoNode({
+      label: 'ENTRY', icon: 'public', iconClass: 'text-primary',
+      title: host, sub: 'Target URL',
+    });
+
+    if (!top.length) {
+      html += topoEdge(false) + topoNode({
+        label: 'STATUS', icon: 'verified_user', iconClass: 'text-primary',
+        title: job.status === 'completed' ? 'Sin fallos críticos/altos' : 'Mapeando superficie…',
+        sub: job.status === 'completed' ? `${findings.length} hallazgos menores` : 'scan en curso',
+      });
+    } else {
+      for (const f of top) {
+        const sev = String(f.severity || '').toUpperCase();
+        const isCrit = sev === 'CRITICAL';
+        const title = f.title_technical || f.title_business || f.id || 'Finding';
+        html += topoEdge(isCrit) + topoNode({
+          label: sev + ' FLAW', icon: 'warning',
+          iconClass: (isCrit ? 'text-error' : 'text-tertiary') + ' animate-pulse',
+          title, sub: f.category || f.id || '',
+          alert: isCrit,
+        });
+      }
+    }
+
+    topoGraph.innerHTML = html;
   }
 
   function levelStyles(level) {
@@ -429,7 +449,7 @@
     const scanId = resolveScanId();
     if (!scanId) {
       sessionEl.textContent = 'SESSION_ID: —';
-      topoEl.textContent = 'Sin target';
+      if (topoGraph) topoGraph.innerHTML = '<div class="font-label-mono text-label-mono text-on-surface-variant opacity-70">Sin topología — ejecuta un escaneo para mapear la superficie real.</div>';
       if (agentStatus) agentStatus.textContent = 'SIN SCAN ACTIVO';
       return;
     }
@@ -438,9 +458,7 @@
 
     try {
       const job = await VicoGuard.getScan(scanId);
-      const target = job.target_url || (job.result && job.result.target_url) || '';
-      topoEl.textContent = shortHost(target);
-      topoEl.title = target;
+      renderTopology(job);
 
       if (agentStatus) {
         const st = (job.status || '').toUpperCase();
