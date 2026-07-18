@@ -34,6 +34,10 @@ client_secret*.json
 
 # Databases (generated at runtime)
 *.db
+*.db-wal
+*.db-shm
+*.sqlite3-wal
+*.sqlite3-shm
 
 # Temporary & logs
 *.log
@@ -46,8 +50,10 @@ node_modules/
 # PDF papers (too large for git)
 docs_pdf/
 
-# Antigravity agent data
-.agents/
+# Agent internals (keep project docs in .agents/*.md tracked)
+.agents/**/cache/
+.agents/**/*.tmp
+.agents/**/sessions/
 
 # ===== LOCAL-ONLY SCRIPTS (contain tokens, local paths, or dev utilities) =====
 auth_drive.py

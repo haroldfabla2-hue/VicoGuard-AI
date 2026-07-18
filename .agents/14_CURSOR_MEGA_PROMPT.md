@@ -70,19 +70,21 @@ d:\Proyectos personales\Hackaton Flit\
 ├── .gitignore                            ← Excluye tokens, scripts locales, PDFs
 ├── README.md                             ← Documentación principal del proyecto
 │
-├── 1_PRODUCT_PITCH.md                    ← Pitch comercial con datos de mercado
-├── 2_TECHNICAL_ARCHITECTURE.md           ← Arquitectura técnica + diagramas Mermaid
-├── 3_HACKATHON_ROADMAP.md                ← Roadmap hora por hora
-├── 4_DESIGN_AND_UI.md                    ← Sistema de diseño Obsidian Stealth
-├── 5_STITCH_COMPONENTS.md                ← Componentes UI generados
-├── 6_TEAM_ROLES.md                       ← Roles del equipo
-├── 7_AI_SYSTEM_PROMPTS.md                ← System prompts de los agentes
-├── 8_PITCH_SCRIPT_AND_QA.md              ← Guión del pitch + Q&A preparadas
-├── 9_ENV_SETUP_CHECKLIST.md              ← Checklist de setup
-├── 10_DEMO_MOCK_DATA.md                  ← Datos mock para la demo
-├── 11_MEGA_STITCH_PROMPTS.md             ← Prompts para generar UI
-├── 12_ADVANCED_AGENTIC_PLAN.md           ← Plan de arquitectura agéntica avanzada
-├── 13_SUMMARY_PAPERS.md                  ← Resúmenes de los 5 papers académicos
+├── .agents/                              ← Docs de producto / contexto del proyecto
+│   ├── 1_PRODUCT_PITCH.md                ← Pitch comercial con datos de mercado
+│   ├── 2_TECHNICAL_ARCHITECTURE.md       ← Arquitectura técnica + diagramas Mermaid
+│   ├── 3_HACKATHON_ROADMAP.md            ← Roadmap hora por hora
+│   ├── 4_DESIGN_AND_UI.md                ← Sistema de diseño Obsidian Stealth
+│   ├── 5_STITCH_COMPONENTS.md            ← Componentes UI generados
+│   ├── 6_TEAM_ROLES.md                   ← Roles del equipo
+│   ├── 7_AI_SYSTEM_PROMPTS.md            ← System prompts de los agentes
+│   ├── 8_PITCH_SCRIPT_AND_QA.md          ← Guión del pitch + Q&A preparadas
+│   ├── 9_ENV_SETUP_CHECKLIST.md          ← Checklist de setup
+│   ├── 10_DEMO_MOCK_DATA.md              ← Datos mock para la demo
+│   ├── 11_MEGA_STITCH_PROMPTS.md         ← Prompts para generar UI
+│   ├── 12_ADVANCED_AGENTIC_PLAN.md       ← Plan de arquitectura agéntica avanzada
+│   ├── 13_SUMMARY_PAPERS.md              ← Resúmenes de los 5 papers académicos
+│   └── 14_CURSOR_MEGA_PROMPT.md          ← Este archivo (mega prompt Cursor)
 │
 ├── src/
 │   ├── requirements.txt                  ← Dependencias: requests, beautifulsoup4, openai, python-dotenv, fastapi, uvicorn

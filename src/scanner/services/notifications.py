@@ -20,14 +20,20 @@ class TelegramNotifier:
         self.chat_id = os.getenv("TELEGRAM_CHAT_ID")
         self.api_url = f"https://api.telegram.org/bot{self.bot_token}"
 
-    def send_alert(self, ai_analysis: dict) -> dict:
-        """Formatea y envía la alerta de vulnerabilidad por Telegram."""
+    def send_alert(self, ai_analysis: dict, threat_fingerprint: str = "", scan_id: str = "") -> dict:
+        """Formatea y envía la alerta de vulnerabilidad por Telegram con botones inline."""
         score = ai_analysis.get("security_score", "?")
+        try:
+            score_num = int(score)
+        except (TypeError, ValueError):
+            score_num = 0
         summary = ai_analysis.get("summary", "Sin resumen disponible.")
         findings = ai_analysis.get("findings", [])
+        fingerprint = threat_fingerprint or ai_analysis.get("_threat_fingerprint", "")
+        scan_id = scan_id or ai_analysis.get("scan_id", "")
 
         # Determinar emoji del score
-        score_emoji = "🟢" if score >= 80 else "🟡" if score >= 50 else "🔴"
+        score_emoji = "🟢" if score_num >= 80 else "🟡" if score_num >= 50 else "🔴"
 
         # Construir mensaje Markdown
         message = f"""🚨 *ALERTA DE SEGURIDAD — VicoGuard AI* 🚨
@@ -39,8 +45,9 @@ class TelegramNotifier:
 """
         for f in findings[:3]:  # Máximo 3 hallazgos en el mensaje
             severity_emoji = {"CRITICAL": "🔴", "HIGH": "🟠", "MEDIUM": "🟡", "LOW": "🔵"}.get(f.get("severity"), "⚪")
+            title = f.get("title_business") or f.get("title") or "Sin título"
             message += f"""
-{severity_emoji} *{f.get('severity', 'N/A')}:* {f.get('title_business', 'Sin título')}
+{severity_emoji} *{f.get('severity', 'N/A')}:* {title}
 """
             if f.get("analogy"):
                 message += f"💡 _{f['analogy']}_\n"
@@ -53,9 +60,22 @@ class TelegramNotifier:
 ```
 """
 
-        message += "\n✅ _¿Ya aplicaste el parche? Escribe \"Listo\" y reescanearemos tu app._\n\n_Powered by VicoGuard AI 🛡️_"
+        message += "\n✅ _Usa los botones abajo para confirmar remediación._\n\n_Powered by VicoGuard AI 🛡️_"
 
-        return self._send_message(message)
+        # Inline keyboard: Aplicar / Ignorar / Ver Detalles
+        reply_markup = None
+        if fingerprint or scan_id:
+            row = []
+            if fingerprint:
+                row.append({"text": "✅ Aplicar Parche", "callback_data": f"vg:success:{fingerprint[:40]}"})
+                row.append({"text": "❌ Ignorar", "callback_data": f"vg:failed:{fingerprint[:40]}"})
+            buttons = [row] if row else []
+            if scan_id:
+                buttons.append([{"text": "📋 Ver Detalles", "callback_data": f"vg:details:{scan_id[:40]}"}])
+            if buttons:
+                reply_markup = {"inline_keyboard": buttons}
+
+        return self._send_message(message, reply_markup=reply_markup)
 
     def send_server_alert(self, correlation: dict) -> dict:
         """Envía alerta de monitoreo de servidor correlacionada."""
@@ -86,15 +106,39 @@ class TelegramNotifier:
 
         return self._send_message(message)
 
-    def _send_message(self, text: str) -> dict:
-        """Envía un mensaje de texto por Telegram."""
+    def _send_message(self, text: str, reply_markup: dict = None) -> dict:
+        """Envía un mensaje de texto por Telegram (opcionalmente con inline keyboard)."""
+        if not self.bot_token or not self.chat_id:
+            print("[Telegram] TOKEN o CHAT_ID no configurados — skip")
+            return {"ok": False, "error": "missing_credentials"}
+
         url = f"{self.api_url}/sendMessage"
         payload = {
             "chat_id": self.chat_id,
             "text": text,
             "parse_mode": "Markdown",
         }
-        response = requests.post(url, json=payload)
+        if reply_markup:
+            payload["reply_markup"] = reply_markup
+        response = requests.post(url, json=payload, timeout=15)
+        result = response.json()
+        if not result.get("ok"):
+            # Retry sin Markdown si falla el parseo
+            payload.pop("parse_mode", None)
+            response = requests.post(url, json=payload, timeout=15)
+            result = response.json()
+        return result
+
+    def answer_callback(self, callback_query_id: str, text: str) -> dict:
+        """Responde a un callback de botón inline (quita el spinner)."""
+        if not self.bot_token:
+            return {"ok": False}
+        url = f"{self.api_url}/answerCallbackQuery"
+        response = requests.post(
+            url,
+            json={"callback_query_id": callback_query_id, "text": text, "show_alert": False},
+            timeout=10,
+        )
         return response.json()
 
 
@@ -124,7 +168,13 @@ class NotificationDispatcher:
         self.email = EmailNotifier()
         self.whatsapp = WhatsAppNotifier()
 
-    def dispatch(self, ai_analysis: dict, channels: list = None) -> list:
+    def dispatch(
+        self,
+        ai_analysis: dict,
+        channels: list = None,
+        threat_fingerprint: str = "",
+        scan_id: str = "",
+    ) -> list:
         """Envía la alerta a todos los canales activos del usuario."""
         if channels is None:
             channels = ["telegram"]  # Default para el MVP
@@ -132,7 +182,14 @@ class NotificationDispatcher:
         results = []
         for channel in channels:
             if channel == "telegram":
-                results.append({"channel": "telegram", "result": self.telegram.send_alert(ai_analysis)})
+                results.append({
+                    "channel": "telegram",
+                    "result": self.telegram.send_alert(
+                        ai_analysis,
+                        threat_fingerprint=threat_fingerprint,
+                        scan_id=scan_id or ai_analysis.get("scan_id", ""),
+                    ),
+                })
             elif channel == "email":
                 results.append({"channel": "email", "result": self.email.send_alert(ai_analysis)})
             elif channel == "whatsapp":

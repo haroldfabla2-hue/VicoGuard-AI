@@ -161,28 +161,28 @@
 </div>
 <ul class="flex flex-col gap-sm flex-1 font-body-md text-body-md">
 <li>
-<a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all px-md py-sm rounded-xl" href="#">
+<a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all px-md py-sm rounded-xl" href="/ui/audit">
 <span class="material-symbols-outlined text-[20px]">security</span>
                     Command Center
                 </a>
 </li>
 <li>
 <!-- Active Navigation -->
-<a class="flex items-center gap-md bg-secondary-container/20 text-primary rounded-xl px-md py-sm border border-primary/20 hover:bg-white/5 transition-all" href="#">
+<a class="flex items-center gap-md bg-secondary-container/20 text-primary rounded-xl px-md py-sm border border-primary/20 hover:bg-white/5 transition-all" href="/ui/live">
 <span class="material-symbols-outlined text-[20px]">terminal</span>
                     Live Execution
                 </a>
 </li>
 <li>
-<a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all px-md py-sm rounded-xl" href="#">
+<a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all px-md py-sm rounded-xl" href="/ui/dashboard">
 <span class="material-symbols-outlined text-[20px]">analytics</span>
                     Dashboard
                 </a>
 </li>
 <li>
-<a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all px-md py-sm rounded-xl" href="#">
+<a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all px-md py-sm rounded-xl" href="/docs">
 <span class="material-symbols-outlined text-[20px]">settings</span>
-                    Settings
+                    API Docs
                 </a>
 </li>
 </ul>
@@ -199,10 +199,10 @@
 </div>
 </div>
 <div class="flex items-center gap-md">
-<span class="font-label-mono text-label-mono text-on-surface-variant border border-white/10 px-sm py-xs rounded bg-surface-container-low">SESSION_ID: X-9942</span>
-<button class="font-label-mono text-label-mono text-on-surface bg-surface-container border border-white/10 px-md py-sm rounded hover:bg-white/5 transition-colors flex items-center gap-sm">
-<span class="material-symbols-outlined text-[16px]">stop</span> Terminate
-                </button>
+<span id="session-id" class="font-label-mono text-label-mono text-on-surface-variant border border-white/10 px-sm py-xs rounded bg-surface-container-low">SESSION_ID: —</span>
+<a href="/ui/audit" class="font-label-mono text-label-mono text-on-surface bg-surface-container border border-white/10 px-md py-sm rounded hover:bg-white/5 transition-colors flex items-center gap-sm">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span> Nuevo Audit
+                </a>
 </div>
 </header>
 <!-- Split View Container -->
@@ -214,58 +214,13 @@
 <span class="font-label-mono text-label-mono text-on-surface/70">Terminal / Stream</span>
 <span class="material-symbols-outlined text-[16px] text-on-surface/50">filter_list</span>
 </div>
-<!-- Terminal Log Area -->
-<div class="flex-1 overflow-y-auto terminal-scroll p-md font-code-sm text-code-sm flex flex-col gap-md">
-<div class="flex flex-col gap-xs">
-<div class="flex items-center gap-sm text-on-surface-variant opacity-70">
-<span class="text-secondary-fixed-dim">[02:14:01]</span>
-<span>&gt; System initialized. Beginning reconnaissance phase.</span>
-</div>
-</div>
-<div class="flex flex-col gap-xs border-l-2 border-primary/30 pl-sm">
+<!-- Terminal Log Area (live-polled from API) -->
+<div id="live-terminal" class="flex-1 overflow-y-auto terminal-scroll p-md font-code-sm text-code-sm flex flex-col gap-md">
+<div class="flex flex-col gap-xs text-on-surface-variant opacity-70">
 <div class="flex items-center gap-sm">
-<span class="text-secondary-fixed-dim">[02:14:02]</span>
-<span class="px-xs py-[2px] rounded bg-surface-container border border-outline-variant text-on-surface-variant text-[10px]">OSINT</span>
-<span class="text-on-surface">&gt; Scraping publicly exposed endpoints on *.target.local</span>
+<span class="text-secondary-fixed-dim">[--:--:--]</span>
+<span>&gt; Esperando escaneo activo… Inicia uno desde Command Center.</span>
 </div>
-<div class="text-on-surface-variant ml-xl opacity-80">
-                            Found 14 subdomains. Filtering non-responsive nodes.
-                        </div>
-</div>
-<div class="flex flex-col gap-xs border-l-2 border-tertiary-container/50 pl-sm mt-sm">
-<div class="flex items-center gap-sm">
-<span class="text-secondary-fixed-dim">[02:14:04]</span>
-<span class="px-xs py-[2px] rounded bg-surface-container border border-outline-variant text-on-surface-variant text-[10px]">RECON</span>
-<span class="text-on-surface">&gt; Analyzing API topology for target vector.</span>
-</div>
-<div class="text-tertiary-container ml-xl mt-xs">
-                            ↳ Identified GraphQL endpoint at /v1/graphql. Introspecting schema...
-                        </div>
-</div>
-<div class="flex flex-col gap-xs border-l-2 border-secondary-container/80 pl-sm mt-sm bg-secondary-container/5 p-sm rounded-r">
-<div class="flex items-center gap-sm">
-<span class="text-secondary-fixed-dim font-bold">[02:14:05]</span>
-<span class="px-xs py-[2px] rounded bg-secondary-container/30 border border-secondary-container text-secondary text-[10px] animate-pulse">REASONING</span>
-<span class="text-primary-fixed font-medium">&gt; Evaluating vulnerability vectors...</span>
-</div>
-<div class="text-on-surface ml-xl mt-xs leading-relaxed">
-<span class="opacity-70">Schema introspection successful. Analyzing permissions model. Discovered multi-tenant architecture with potential lateral movement vector via misconfigured row-level security.</span>
-<br/><br/>
-<span class="text-secondary-fixed-dim">&gt; Formulating attack surface hypothesis...</span>
-</div>
-</div>
-<div class="flex flex-col gap-xs border-l-2 border-error/70 pl-sm mt-sm bg-error-container/10 p-sm rounded-r">
-<div class="flex items-center gap-sm">
-<span class="text-secondary-fixed-dim">[02:14:06]</span>
-<span class="px-xs py-[2px] rounded bg-error/20 border border-error text-error text-[10px] font-bold">ALERT</span>
-<span class="text-error font-medium">&gt; Critical configuration flaw detected.</span>
-</div>
-<div class="text-error ml-xl mt-xs opacity-90">
-                            ↳ DB node [postgres-cluster-01] missing RLS policy on 'users' table. Unauthenticated read/write access possible.
-                        </div>
-</div>
-<div class="flex items-center gap-sm text-on-surface-variant mt-sm">
-<span class="text-secondary-fixed-dim animate-pulse">_</span>
 </div>
 </div>
 </section>
@@ -302,9 +257,9 @@
 <span class="font-label-mono text-label-mono text-on-surface-variant text-[11px]">ENTRY</span>
 <span class="material-symbols-outlined text-[14px] text-primary">public</span>
 </div>
-<div class="font-body-md text-body-md font-bold text-on-surface">target.local</div>
+<div id="topo-target" class="font-body-md text-body-md font-bold text-on-surface break-all">—</div>
 <div class="font-label-mono text-label-mono text-[10px] text-on-surface-variant bg-surface-container-high px-xs py-1 rounded inline-block w-fit">
-                                Port 443
+                                Target URL
                             </div>
 </div>
 <!-- Node 2: App Server -->
@@ -345,4 +300,185 @@
 </section>
 </div>
 </main>
+<script src="/ui/js/vicoguard-api.js"></script>
+<script>
+(function () {
+  const terminal = document.getElementById('live-terminal');
+  const sessionEl = document.getElementById('session-id');
+  const topoEl = document.getElementById('topo-target');
+  const agentStatus = document.querySelector('header .text-primary.font-label-mono');
+  let lastRendered = 0;
+  let pollTimer = null;
+
+  function resolveScanId() {
+    return (
+      localStorage.getItem('vg_active_scan_id') ||
+      localStorage.getItem('vg_latest_scan_id') ||
+      ''
+    );
+  }
+
+  function levelStyles(level) {
+    const L = String(level || 'INFO').toUpperCase();
+    if (L === 'ALERT') {
+      return {
+        border: 'border-error/70',
+        bg: 'bg-error-container/10',
+        badge: 'bg-error/20 border-error text-error font-bold',
+        msg: 'text-error font-medium',
+      };
+    }
+    if (L === 'REASONING') {
+      return {
+        border: 'border-secondary-container/80',
+        bg: 'bg-secondary-container/5',
+        badge: 'bg-secondary-container/30 border-secondary-container text-secondary animate-pulse',
+        msg: 'text-primary-fixed font-medium',
+      };
+    }
+    if (L === 'WARN') {
+      return {
+        border: 'border-tertiary-container/50',
+        bg: '',
+        badge: 'bg-surface-container border-outline-variant text-tertiary-container',
+        msg: 'text-on-surface',
+      };
+    }
+    if (L === 'OK') {
+      return {
+        border: 'border-primary/30',
+        bg: '',
+        badge: 'bg-surface-container border-outline-variant text-primary',
+        msg: 'text-on-surface',
+      };
+    }
+    return {
+      border: 'border-primary/20',
+      bg: '',
+      badge: 'bg-surface-container border-outline-variant text-on-surface-variant',
+      msg: 'text-on-surface',
+    };
+  }
+
+  function renderEvents(events) {
+    if (!events || !events.length) {
+      terminal.innerHTML = `
+        <div class="flex flex-col gap-xs text-on-surface-variant opacity-70">
+          <div class="flex items-center gap-sm">
+            <span class="text-secondary-fixed-dim">[--:--:--]</span>
+            <span>&gt; Esperando eventos del pipeline…</span>
+          </div>
+        </div>`;
+      lastRendered = 0;
+      return;
+    }
+
+    // Incremental append when new events arrive
+    if (events.length < lastRendered) lastRendered = 0;
+    if (lastRendered === 0) terminal.innerHTML = '';
+
+    const frag = document.createDocumentFragment();
+    for (let i = lastRendered; i < events.length; i++) {
+      const ev = events[i];
+      const st = levelStyles(ev.level);
+      const row = document.createElement('div');
+      row.className = `flex flex-col gap-xs border-l-2 ${st.border} pl-sm ${st.bg} ${st.bg ? 'p-sm rounded-r' : ''}`;
+      row.innerHTML = `
+        <div class="flex items-center gap-sm flex-wrap">
+          <span class="text-secondary-fixed-dim">[${ev.ts || '--:--:--'}]</span>
+          <span class="px-xs py-[2px] rounded border text-[10px] ${st.badge}">${ev.agent || ev.level || 'SYS'}</span>
+          <span class="${st.msg}">&gt; ${escapeHtml(ev.message || '')}</span>
+        </div>`;
+      frag.appendChild(row);
+    }
+    terminal.appendChild(frag);
+
+    // Cursor
+    let cursor = terminal.querySelector('[data-cursor]');
+    if (!cursor) {
+      cursor = document.createElement('div');
+      cursor.dataset.cursor = '1';
+      cursor.className = 'flex items-center gap-sm text-on-surface-variant mt-sm';
+      cursor.innerHTML = '<span class="text-secondary-fixed-dim animate-pulse">_</span>';
+      terminal.appendChild(cursor);
+    } else {
+      terminal.appendChild(cursor);
+    }
+
+    lastRendered = events.length;
+    terminal.scrollTop = terminal.scrollHeight;
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function shortHost(url) {
+    try {
+      return new URL(url).hostname || url;
+    } catch (_) {
+      return url || '—';
+    }
+  }
+
+  async function tick() {
+    const scanId = resolveScanId();
+    if (!scanId) {
+      sessionEl.textContent = 'SESSION_ID: —';
+      topoEl.textContent = 'Sin target';
+      if (agentStatus) agentStatus.textContent = 'SIN SCAN ACTIVO';
+      return;
+    }
+
+    sessionEl.textContent = 'SESSION_ID: ' + scanId.slice(0, 8).toUpperCase();
+
+    try {
+      const job = await VicoGuard.getScan(scanId);
+      const target = job.target_url || (job.result && job.result.target_url) || '';
+      topoEl.textContent = shortHost(target);
+      topoEl.title = target;
+
+      if (agentStatus) {
+        const st = (job.status || '').toUpperCase();
+        if (st === 'RUNNING' || st === 'QUEUED') {
+          agentStatus.textContent = 'AGENT ACTIVE · ' + st;
+        } else if (st === 'COMPLETED') {
+          agentStatus.textContent = 'PIPELINE COMPLETADO';
+        } else if (st === 'FAILED') {
+          agentStatus.textContent = 'PIPELINE FALLIDO';
+        } else {
+          agentStatus.textContent = st || 'IDLE';
+        }
+      }
+
+      renderEvents(job.events || []);
+
+      if (job.status === 'completed' && job.result) {
+        try {
+          localStorage.setItem('vg_latest_scan', JSON.stringify(job.result));
+          localStorage.setItem('vg_latest_scan_id', scanId);
+        } catch (_) {}
+      }
+    } catch (e) {
+      if (lastRendered === 0) {
+        terminal.innerHTML = `
+          <div class="flex flex-col gap-xs text-error">
+            <div class="flex items-center gap-sm">
+              <span class="text-secondary-fixed-dim">[--:--:--]</span>
+              <span>&gt; No se pudo leer el scan (${escapeHtml(e.message)}). ¿API en :8000?</span>
+            </div>
+          </div>`;
+      }
+    }
+  }
+
+  tick();
+  pollTimer = setInterval(tick, 1000);
+  window.addEventListener('beforeunload', () => clearInterval(pollTimer));
+})();
+</script>
 </body></html>

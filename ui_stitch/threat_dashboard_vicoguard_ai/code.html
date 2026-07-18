@@ -209,19 +209,19 @@
 </div>
 <ul class="flex flex-col gap-sm flex-1">
 <li>
-<a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface px-md py-sm hover:bg-white/5 transition-all rounded-lg font-body-md text-body-md" href="#">
+<a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface px-md py-sm hover:bg-white/5 transition-all rounded-lg font-body-md text-body-md" href="/ui/audit">
 <span class="material-symbols-outlined" data-icon="security">security</span>
                     Command Center
                 </a>
 </li>
 <li>
-<a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface px-md py-sm hover:bg-white/5 transition-all rounded-lg font-body-md text-body-md" href="#">
+<a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface px-md py-sm hover:bg-white/5 transition-all rounded-lg font-body-md text-body-md" href="/ui/live">
 <span class="material-symbols-outlined" data-icon="terminal">terminal</span>
                     Live Execution
                 </a>
 </li>
 <li>
-<a class="flex items-center gap-md bg-secondary-container/20 text-primary rounded-xl px-md py-sm border border-primary/20 hover:bg-white/5 transition-all translate-x-1 duration-200 font-body-md text-body-md" href="#">
+<a class="flex items-center gap-md bg-secondary-container/20 text-primary rounded-xl px-md py-sm border border-primary/20 hover:bg-white/5 transition-all translate-x-1 duration-200 font-body-md text-body-md" href="/ui/dashboard">
 <span class="material-symbols-outlined" data-icon="analytics">analytics</span>
                     Dashboard
                 </a>
@@ -268,36 +268,45 @@
 <circle class="transition-all duration-1000 ease-out" cx="50" cy="50" fill="none" r="45" stroke="#ffb4ab" stroke-dasharray="283" stroke-dashoffset="175" stroke-width="4"></circle>
 </svg>
 <div class="absolute flex flex-col items-center justify-center text-center">
-<span class="font-display-lg text-display-lg text-error">38</span>
+<span id="dash-score" class="font-display-lg text-display-lg text-error">—</span>
 <span class="font-label-mono text-label-mono text-on-surface-variant uppercase tracking-widest mt-1">Score</span>
 </div>
 </div>
 <div class="mt-md text-center">
-<span class="inline-block px-sm py-xs bg-error-container/20 border border-error/50 text-error font-label-mono text-label-mono rounded">CRITICAL RISK</span>
+<span id="dash-risk" class="inline-block px-sm py-xs bg-error-container/20 border border-error/50 text-error font-label-mono text-label-mono rounded">LOADING</span>
 </div>
+<p id="dash-target" class="mt-2 font-label-mono text-label-mono text-on-surface-variant text-center text-xs"></p>
 </div>
 <!-- KPI Row -->
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-md col-span-1 lg:col-span-2">
+<div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-md col-span-1 lg:col-span-2">
 <div class="glass-panel rounded-xl p-md flex flex-col justify-between">
 <span class="font-label-mono text-label-mono text-on-surface-variant flex items-center gap-sm">
 <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
                             Critical Alerts
                         </span>
-<span class="font-display-lg text-display-lg text-error mt-sm">1</span>
+<span id="kpi-critical" class="font-display-lg text-display-lg text-error mt-sm">—</span>
 </div>
 <div class="glass-panel rounded-xl p-md flex flex-col justify-between">
 <span class="font-label-mono text-label-mono text-on-surface-variant flex items-center gap-sm">
 <span class="w-2 h-2 rounded-full bg-tertiary"></span>
-                            Informational
+                            High / Medium
                         </span>
-<span class="font-display-lg text-display-lg text-tertiary mt-sm">3</span>
+<span id="kpi-high" class="font-display-lg text-display-lg text-tertiary mt-sm">—</span>
 </div>
-<div class="glass-panel rounded-xl p-md flex flex-col justify-between opacity-50">
+<div class="glass-panel rounded-xl p-md flex flex-col justify-between">
 <span class="font-label-mono text-label-mono text-on-surface-variant flex items-center gap-sm">
-<span class="w-2 h-2 rounded-full bg-outline"></span>
-                            Active Threats
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+                            Brain Memories
                         </span>
-<span class="font-display-lg text-display-lg text-outline mt-sm">0</span>
+<span id="kpi-brain" class="font-display-lg text-display-lg text-primary mt-sm">—</span>
+</div>
+<div class="glass-panel rounded-xl p-md flex flex-col justify-between">
+<span class="font-label-mono text-label-mono text-on-surface-variant flex items-center gap-sm">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+                            Nodos Canónicos
+                        </span>
+<span id="kpi-canonical" class="font-display-lg text-display-lg text-secondary mt-sm">—</span>
+<span id="kpi-canonical-sub" class="font-label-mono text-label-mono text-on-surface-variant mt-xs">sin duplicados</span>
 </div>
 </div>
 </div>
@@ -307,53 +316,11 @@
 <span class="material-symbols-outlined text-primary" data-icon="bolt">bolt</span>
                     Remediation Stream
                 </h3>
-<!-- Primary Remediation Card -->
-<div class="ai-reasoning rounded-xl overflow-hidden flex flex-col">
-<!-- Card Header -->
-<div class="p-md border-b border-white/10 flex justify-between items-start flex-wrap gap-sm bg-surface-container/50">
-<div>
-<div class="flex items-center gap-sm mb-xs">
-<span class="px-sm py-xs bg-error-container/20 border border-error/50 text-error font-label-mono text-label-mono rounded flex items-center gap-xs">
-<span class="material-symbols-outlined text-[14px]" data-icon="warning">warning</span>
-                                    Critical Threat
-                                </span>
-<span class="font-label-mono text-label-mono text-on-surface-variant text-xs">Generated by VicoGuard AI</span>
-</div>
-<h4 class="font-headline-sm text-headline-sm text-on-surface">Unauthenticated Database Access (Supabase RLS)</h4>
-</div>
-<span class="font-label-mono text-label-mono text-on-surface-variant text-xs">2 mins ago</span>
-</div>
-<!-- Code Split Diff -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-px bg-white/5">
-<!-- Vulnerable Code (Red) -->
-<div class="p-md bg-[#161C28] flex flex-col gap-sm">
-<div class="flex justify-between items-center text-xs text-on-surface-variant border-b border-white/5 pb-xs">
-<span class="font-label-mono text-label-mono text-error">Vulnerable Policy</span>
-<span>supabase/policies.sql</span>
-</div>
-<pre class="font-code-sm text-code-sm text-on-surface overflow-x-auto"><code><span class="text-outline">-- Allows anonymous read access</span>
-CREATE POLICY "Public profiles are viewable by everyone."
-ON profiles FOR SELECT
-<span class="bg-error/20 text-error px-1 -mx-1">USING ( true );</span></code></pre>
-</div>
-<!-- Patched Code (Green) -->
-<div class="p-md bg-[#161C28] flex flex-col gap-sm">
-<div class="flex justify-between items-center text-xs text-on-surface-variant border-b border-white/5 pb-xs">
-<span class="font-label-mono text-label-mono text-primary">Proposed Patch</span>
-<span>supabase/policies.sql</span>
-</div>
-<pre class="font-code-sm text-code-sm text-on-surface overflow-x-auto"><code><span class="text-outline">-- Restricts read access to authenticated users</span>
-CREATE POLICY "Public profiles are viewable by everyone."
-ON profiles FOR SELECT
-<span class="bg-primary/20 text-primary px-1 -mx-1">USING ( auth.role() = 'authenticated' );</span></code></pre>
-</div>
-</div>
-<!-- Action Footer -->
-<div class="p-md border-t border-white/10 bg-surface-container/50 flex justify-end">
-<button class="bg-primary-container hover:bg-primary-fixed transition-colors text-on-primary font-label-mono text-label-mono px-lg py-sm rounded-lg flex items-center gap-sm">
-<span class="material-symbols-outlined" data-icon="send">send</span>
-                            Dispatch Remediation Patch to Telegram
-                        </button>
+<p id="dash-summary" class="font-body-md text-body-md text-on-surface-variant"></p>
+<div id="remediation-stream" class="flex flex-col gap-md">
+<!-- Populated by JS from latest scan -->
+<div class="ai-reasoning rounded-xl overflow-hidden flex flex-col p-md">
+<p class="font-label-mono text-label-mono text-on-surface-variant">Cargando último escaneo...</p>
 </div>
 </div>
 </div>
@@ -368,4 +335,132 @@ ON profiles FOR SELECT
 </div>
 </footer>
 </main>
+<script src="/ui/js/vicoguard-api.js"></script>
+<script>
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function renderFindingCard(f) {
+            const sev = (f.severity || 'INFO').toUpperCase();
+            const color = VicoGuard.severityColor(sev);
+            const title = f.title_business || f.title || f.type || 'Finding';
+            const code = f.remediation_code || '// Sin código de remediación';
+            return `
+            <div class="ai-reasoning rounded-xl overflow-hidden flex flex-col">
+                <div class="p-md border-b border-white/10 flex justify-between items-start flex-wrap gap-sm bg-surface-container/50">
+                    <div>
+                        <div class="flex items-center gap-sm mb-xs">
+                            <span class="px-sm py-xs font-label-mono text-label-mono rounded flex items-center gap-xs"
+                                  style="background:${color}22;color:${color};border:1px solid ${color}55">
+                                <span class="material-symbols-outlined text-[14px]">warning</span> ${sev}
+                            </span>
+                            <span class="font-label-mono text-label-mono text-on-surface-variant text-xs">Generated by VicoGuard AI</span>
+                        </div>
+                        <h4 class="font-headline-sm text-headline-sm text-on-surface">${escapeHtml(title)}</h4>
+                        <p class="font-body-md text-body-md text-on-surface-variant mt-1">${escapeHtml(f.analogy || f.impact || '')}</p>
+                    </div>
+                </div>
+                <div class="p-md bg-[#161C28]">
+                    <div class="flex justify-between items-center text-xs text-on-surface-variant border-b border-white/5 pb-xs mb-sm">
+                        <span class="font-label-mono text-label-mono text-primary">Proposed Patch</span>
+                        <span>remediation</span>
+                    </div>
+                    <pre class="font-code-sm text-code-sm text-primary overflow-x-auto whitespace-pre-wrap"><code>${escapeHtml(code)}</code></pre>
+                </div>
+                <div class="p-md border-t border-white/10 bg-surface-container/50 flex justify-end gap-sm">
+                    <button onclick="markFeedback(true)" class="bg-primary-container hover:bg-primary-fixed transition-colors text-on-primary font-label-mono text-label-mono px-lg py-sm rounded-lg flex items-center gap-sm">
+                        <span class="material-symbols-outlined" data-icon="check">check</span> Marcar Aplicado
+                    </button>
+                </div>
+            </div>`;
+        }
+
+        let currentFingerprint = '';
+
+        async function markFeedback(success) {
+            if (!currentFingerprint) {
+                alert('Sin fingerprint — ejecuta un scan primero');
+                return;
+            }
+            try {
+                const r = await VicoGuard.submitFeedback(currentFingerprint, success);
+                alert(r.message || 'Feedback enviado');
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
+        }
+
+        async function loadDashboard() {
+            try {
+                const [latest, brain] = await Promise.all([
+                    VicoGuard.getLatestScan(),
+                    VicoGuard.getBrainStats(),
+                ]);
+
+                let result = latest.result;
+                if (!result) {
+                    try {
+                        result = JSON.parse(localStorage.getItem('vg_latest_scan') || 'null');
+                    } catch (_) {}
+                }
+
+                const brainStats = brain.brain || {};
+                document.getElementById('kpi-brain').textContent =
+                    brainStats.episodic_count ?? brainStats.total_memories ?? brainStats.working_memory_size ?? '0';
+
+                const canon = brain.canonical || {};
+                document.getElementById('kpi-canonical').textContent = canon.unique_entities ?? '0';
+                const merges = canon.merges ?? 0;
+                document.getElementById('kpi-canonical-sub').textContent =
+                    merges > 0
+                        ? `${merges} evidencias fusionadas · 0 duplicados`
+                        : `${canon.unique_vulnerabilities ?? 0} vulns · sin duplicados`;
+
+                if (!result) {
+                    document.getElementById('dash-score').textContent = '—';
+                    document.getElementById('dash-risk').textContent = 'NO SCAN YET';
+                    document.getElementById('dash-summary').textContent = 'Ejecuta un audit en /ui/audit para poblar el dashboard.';
+                    document.getElementById('kpi-critical').textContent = '0';
+                    document.getElementById('kpi-high').textContent = '0';
+                    return;
+                }
+
+                const score = Number(result.security_score) || 0;
+                const meta = VicoGuard.scoreLabel(score);
+                document.getElementById('dash-score').textContent = score;
+                document.getElementById('dash-score').style.color = meta.color;
+                document.getElementById('dash-risk').textContent = meta.text;
+                document.getElementById('dash-risk').style.color = meta.color;
+                document.getElementById('dash-target').textContent = result.target_url || '';
+                document.getElementById('dash-summary').textContent = result.summary || '';
+
+                const raw = result.scan_raw || {};
+                document.getElementById('kpi-critical').textContent = raw.critical ?? 0;
+                document.getElementById('kpi-high').textContent = (raw.high || 0) + (raw.medium || 0);
+
+                // Gauge ring
+                const ring = document.querySelector('circle.transition-all');
+                if (ring) {
+                    ring.setAttribute('stroke', meta.color);
+                    ring.setAttribute('stroke-dashoffset', String(283 - (score / 100) * 283));
+                }
+
+                currentFingerprint = result.threat_fingerprint || '';
+                const stream = document.getElementById('remediation-stream');
+                const findings = result.findings || [];
+                stream.innerHTML = findings.length
+                    ? findings.map(renderFindingCard).join('')
+                    : '<div class="ai-reasoning rounded-xl p-md"><p class="text-primary">Sin hallazgos.</p></div>';
+            } catch (e) {
+                document.getElementById('dash-summary').textContent =
+                    'API offline. Inicia: cd src && uvicorn api.main:app --port 8000';
+            }
+        }
+
+        loadDashboard();
+        setInterval(loadDashboard, 8000);
+    </script>
 </body></html>

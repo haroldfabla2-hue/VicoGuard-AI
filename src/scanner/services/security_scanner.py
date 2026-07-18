@@ -128,25 +128,42 @@ class SecurityScanner:
             resp = requests.get(self.target_url, timeout=10)
             html = resp.text
 
-            # Buscar URL y anon key de Supabase
-            supabase_url_match = re.search(r'https://([a-z0-9]+)\.supabase\.co', html)
             anon_key_match = re.search(r'eyJ[a-zA-Z0-9_\-]{50,}', html)
+            if not anon_key_match:
+                return  # sin anon key no se puede probar el REST de Supabase
+            anon_key = anon_key_match.group(0)
 
-            if supabase_url_match and anon_key_match:
-                supabase_url = supabase_url_match.group(0)
-                anon_key = anon_key_match.group(0)
+            # Bases REST a probar. Una app puede declarar su base explícita
+            # (self-hosted / demo local) con `SUPABASE_REST_BASE = "..."`; si lo
+            # hace, tiene prioridad y evita golpear el host cloud (más rápido).
+            rest_bases = []
+            explicit = re.search(r'SUPABASE_REST_BASE\s*[:=]\s*["\']([^"\']+)["\']', html)
+            if explicit:
+                base = explicit.group(1).rstrip("/")
+                if base.startswith("/"):
+                    parsed = urlparse(self.target_url)
+                    base = f"{parsed.scheme}://{parsed.netloc}{base}"
+                rest_bases.append(base)
+            else:
+                cloud = re.search(r'https://([a-z0-9]+)\.supabase\.co', html)
+                if cloud:
+                    rest_bases.append(cloud.group(0))
 
-                # Intentar consultar tablas comunes sin autenticación
-                test_tables = ["users", "customers", "profiles", "orders", "products"]
+            if not rest_bases:
+                return
+
+            # Intentar consultar tablas comunes sin autenticación
+            test_tables = ["users", "customers", "profiles", "orders", "products"]
+            for rest_base in rest_bases:
                 for table in test_tables:
-                    api_url = f"{supabase_url}/rest/v1/{table}?select=*&limit=1"
+                    api_url = f"{rest_base}/rest/v1/{table}?select=*&limit=1"
                     headers = {
                         "apikey": anon_key,
                         "Authorization": f"Bearer {anon_key}",
                     }
                     try:
                         test_resp = requests.get(api_url, headers=headers, timeout=5)
-                        if test_resp.status_code == 200 and test_resp.text != "[]":
+                        if test_resp.status_code == 200 and test_resp.text.strip() != "[]":
                             data = test_resp.json()
                             if isinstance(data, list) and len(data) > 0:
                                 self.findings.append({
