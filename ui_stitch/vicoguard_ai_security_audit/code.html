@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VicoGuard AI - Security Audit</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "alert-crimson": "#f43f5e",
+                        "on-surface-variant": "#bbcabf",
+                        "background": "#0e1511",
+                        "outline-variant": "#3c4a42",
+                        "surface-dim": "#0e1511",
+                        "tertiary-fixed": "#ffdad7",
+                        "on-tertiary-fixed": "#410005",
+                        "on-primary": "#003824",
+                        "primary-fixed-dim": "#4edea3",
+                        "on-secondary": "#472a00",
+                        "on-surface": "#dde4dd",
+                        "surface": "#0e1511",
+                        "surface-bright": "#343b36",
+                        "on-primary-fixed-variant": "#005236",
+                        "primary": "#4edea3",
+                        "tertiary-fixed-dim": "#ffb3af",
+                        "secondary-fixed": "#ffddb8",
+                        "error-container": "#93000a",
+                        "on-secondary-fixed": "#2a1700",
+                        "surface-container-highest": "#2f3632",
+                        "secondary": "#ffb95f",
+                        "on-primary-container": "#00422b",
+                        "surface-glass": "rgba(15, 23, 42, 0.7)",
+                        "primary-fixed": "#6ffbbe",
+                        "on-primary-fixed": "#002113",
+                        "on-tertiary-container": "#711419",
+                        "outline": "#86948a",
+                        "secondary-container": "#ee9800",
+                        "on-background": "#dde4dd",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary-fixed-variant": "#842225",
+                        "inverse-surface": "#dde4dd",
+                        "surface-variant": "#2f3632",
+                        "surface-base": "#020617",
+                        "on-tertiary": "#650911",
+                        "primary-container": "#10b981",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "tertiary-container": "#fc7c78",
+                        "on-error": "#690005",
+                        "surface-container-lowest": "#09100c",
+                        "inverse-on-surface": "#2b322d",
+                        "on-secondary-container": "#5b3800",
+                        "tertiary": "#ffb3af",
+                        "error": "#ffb4ab",
+                        "inverse-primary": "#006c49",
+                        "surface-container": "#1a211d",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "surface-container-low": "#161d19",
+                        "text-secondary": "#94a3b8",
+                        "text-primary": "#f8fafc",
+                        "surface-tint": "#4edea3",
+                        "surface-container-high": "#242c27"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "stack-sm": "8px",
+                        "stack-lg": "32px",
+                        "margin-desktop": "32px",
+                        "stack-md": "16px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["JetBrains Mono"],
+                        "body-lg": ["Inter"],
+                        "code-md": ["JetBrains Mono"],
+                        "headline-xl": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "500" }],
+                        "code-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .cyber-glow {
+            box-shadow: 0 0 15px rgba(78, 222, 163, 0.3);
+        }
+        .cyber-glow-hover:hover {
+            box-shadow: 0 0 25px rgba(78, 222, 163, 0.6);
+        }
+        .alert-glow {
+            box-shadow: 0 0 30px rgba(244, 63, 94, 0.3);
+        }
+        
+        @keyframes sweep {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .radar-sweep {
+            background: conic-gradient(from 0deg, transparent 70%, rgba(78, 222, 163, 0.8) 100%);
+            animation: sweep 2s linear infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        .pulse-ring::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 2px solid rgba(78, 222, 163, 0.5);
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        
+        .glass-card {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .terminal-text {
+            color: #4edea3;
+            text-shadow: 0 0 5px rgba(78, 222, 163, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-surface-base text-text-primary min-h-screen flex flex-col font-body-md overflow-x-hidden selection:bg-primary selection:text-on-primary">
+<!-- Top Navigation -->
+<nav class="bg-transparent docked full-width top-0 bg-transparent flex justify-between items-center w-full px-margin-desktop py-stack-md z-50 absolute">
+<div class="flex items-center gap-stack-sm">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">security</span>
+<span class="font-headline-md text-headline-md font-bold text-primary">VicoGuard AI</span>
+</div>
+<div class="hidden md:flex items-center gap-gutter">
+<a class="text-on-surface-variant font-medium hover:text-primary-fixed-dim transition-colors duration-200 text-body-md" href="#">Dashboard</a>
+<a class="text-on-surface-variant font-medium hover:text-primary-fixed-dim transition-colors duration-200 text-body-md" href="#">History</a>
+<a class="text-on-surface-variant font-medium hover:text-primary-fixed-dim transition-colors duration-200 text-body-md" href="#">Settings</a>
+<button class="flex items-center justify-center h-10 w-10 rounded-full border border-white/10 hover:border-primary/50 transition-colors bg-surface-glass backdrop-blur-xl">
+<img alt="User security profile" class="h-8 w-8 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1FMcWiZNSbo0cszWwaYf6CX01ksYRUgK0J63nj_2Z0xWjJJZnSVBCdkChDtMK9zCCVnRG1WC4VooLlMkMUNJ9VeVw4k8ZKhAG9t3kYJrurZELQDmc41KS4Ot_-woJuoogBPZ66TKkpuNsrTdHw6AV-hiZwTA0KJbSH311JiNUTkKMM9G83eby3DP0Pia5o0i7WRet6YinP5Y322GG62W-BnmJg9s0KBPVmKLAbDqp-8bYlCUkCnKd"/>
+</button>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col items-center justify-center pt-24 pb-16 px-margin-mobile md:px-margin-desktop relative w-full max-w-7xl mx-auto z-10">
+<!-- Background Ambient Glow -->
+<div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-[100%] blur-[120px] -z-10 pointer-events-none"></div>
+<!-- Section 1: Hero & Input -->
+<div class="w-full max-w-3xl flex flex-col items-center text-center space-y-stack-lg mb-16" id="hero-section">
+<h1 class="font-headline-xl text-headline-xl text-transparent bg-clip-text bg-gradient-to-r from-primary via-white to-primary-fixed max-w-2xl leading-tight pb-2">
+                Enterprise-Grade Security for your SME in 60 seconds.
+            </h1>
+<div class="w-full space-y-stack-md mt-8">
+<!-- Main URL Input -->
+<div class="relative w-full group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors">language</span>
+<input class="w-full h-16 pl-12 pr-4 bg-surface-glass border border-white/10 rounded-xl text-body-lg font-body-lg text-text-primary placeholder:text-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary cyber-glow transition-all backdrop-blur-xl shadow-lg" placeholder="https://your-domain.com" type="url"/>
+</div>
+<!-- Telegram Token Input -->
+<div class="relative w-full max-w-md mx-auto group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-sm">key</span>
+<input class="w-full h-12 pl-12 pr-4 bg-surface-glass border border-white/10 rounded-lg font-code-md text-code-md text-text-primary placeholder:text-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all backdrop-blur-xl" placeholder="Telegram Token (Optional)" type="text"/>
+</div>
+<!-- CTA Button -->
+<button class="mt-8 px-8 py-4 bg-primary text-on-primary font-headline-md text-headline-md rounded-xl flex items-center justify-center gap-2 mx-auto cyber-glow cyber-glow-hover transition-all duration-300 transform hover:-translate-y-1 active:scale-95 w-full sm:w-auto" onclick="startScan()">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">security</span>
+                    Audit Infrastructure
+                </button>
+</div>
+</div>
+<!-- Section 2: Scanning State (Hidden by default) -->
+<div class="hidden w-full max-w-4xl flex-col items-center space-y-8 mb-16" id="scanning-state">
+<div class="glass-card rounded-2xl p-8 w-full shadow-2xl relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50"></div>
+<div class="flex flex-col md:flex-row items-center gap-12">
+<!-- Radar Graphic -->
+<div class="relative w-48 h-48 rounded-full border border-primary/30 flex items-center justify-center pulse-ring">
+<div class="absolute inset-0 rounded-full border border-primary/20 m-4"></div>
+<div class="absolute inset-0 rounded-full border border-primary/10 m-8"></div>
+<div class="absolute inset-0 rounded-full radar-sweep rounded-full opacity-50 clip-circle"></div>
+<span class="material-symbols-outlined text-primary text-4xl z-10" style="font-variation-settings: 'FILL' 1;">radar</span>
+</div>
+<!-- Terminal Logs -->
+<div class="flex-grow bg-[#020617] rounded-xl p-6 border border-white/5 w-full min-h-[200px] font-code-md text-code-md flex flex-col justify-end overflow-hidden relative">
+<div class="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-[#020617] to-transparent z-10"></div>
+<div class="space-y-2 terminal-text opacity-80" id="terminal-content">
+<div><span class="text-on-surface-variant">[$]</span> INITIALIZING RECONNAISSANCE...</div>
+<div class="animate-pulse">_</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 3: Results Dashboard (Hidden by default) -->
+<div class="hidden w-full max-w-5xl flex-col space-y-stack-lg mb-16" id="results-state">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Score Card -->
+<div class="glass-card rounded-2xl p-8 flex flex-col items-center justify-center col-span-1 shadow-xl relative overflow-hidden group">
+<div class="absolute top-0 inset-x-0 h-1 bg-alert-crimson shadow-[0_0_15px_rgba(244,63,94,0.8)]"></div>
+<h3 class="font-headline-md text-headline-md text-text-primary mb-6">Security Score</h3>
+<div class="relative w-40 h-40 flex items-center justify-center rounded-full alert-glow mb-4">
+<svg class="absolute inset-0 w-full h-full -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="45" stroke="rgba(255,255,255,0.1)" stroke-width="8"></circle>
+<circle cx="50" cy="50" fill="none" r="45" stroke="#f43f5e" stroke-dasharray="283" stroke-dashoffset="155" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<span class="font-headline-xl text-headline-xl text-alert-crimson font-black">45</span>
+</div>
+<p class="font-label-sm text-label-sm text-alert-crimson uppercase tracking-widest text-center mt-2">Critical Risk</p>
+</div>
+<!-- Vulnerabilities List -->
+<div class="col-span-1 lg:col-span-2 space-y-stack-md">
+<h3 class="font-headline-md text-headline-md text-text-primary mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-alert-crimson">warning</span>
+                        Active Threats
+                    </h3>
+<!-- Critical Card -->
+<div class="glass-card rounded-xl p-6 border-l-4 border-l-alert-crimson relative overflow-hidden group transition-all hover:bg-white/5">
+<div class="flex justify-between items-start mb-4">
+<h4 class="font-headline-md text-headline-md text-text-primary">Database Publicly Exposed</h4>
+<span class="px-3 py-1 bg-alert-crimson/20 text-alert-crimson border border-alert-crimson/30 rounded font-label-sm text-label-sm uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">dangerous</span> Critical
+                            </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 font-mono text-sm">(Supabase RLS Misconfiguration)</p>
+<div class="bg-surface-base p-4 rounded-lg border border-white/5">
+<p class="font-body-md text-body-md text-text-secondary">Anyone can read or delete your customer list. Anonymous access is enabled on the `users` table.</p>
+</div>
+</div>
+<!-- High Card -->
+<div class="glass-card rounded-xl p-6 border-l-4 border-l-secondary relative overflow-hidden group transition-all hover:bg-white/5 opacity-70">
+<div class="flex justify-between items-start mb-4">
+<h4 class="font-body-lg text-body-lg text-text-primary font-bold">Missing Security Headers</h4>
+<span class="px-3 py-1 bg-secondary/20 text-secondary border border-secondary/30 rounded font-label-sm text-label-sm uppercase tracking-wider">
+                                High
+                            </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant font-mono text-sm">HSTS not enforced.</p>
+</div>
+</div>
+</div>
+<!-- Bottom Telegram Banner -->
+<div class="glass-card rounded-xl p-6 flex flex-col md:flex-row items-center justify-between border border-primary/30 cyber-glow relative overflow-hidden group mt-8">
+<div class="absolute inset-0 bg-primary/5 group-hover:bg-primary/10 transition-colors"></div>
+<div class="flex items-center gap-4 relative z-10 mb-4 md:mb-0">
+<div class="w-12 h-12 bg-[#229ED9] rounded-full flex items-center justify-center shrink-0">
+<!-- Telegram Icon SVG for accurate rendering -->
+<svg class="w-6 h-6 text-white ml-1" fill="currentColor" viewbox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"></path></svg>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-text-primary">Action Required</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Check Telegram for the exact SQL Patch to resolve the Supabase exposure.</p>
+</div>
+</div>
+<button class="relative z-10 px-6 py-3 bg-surface-base border border-primary/50 text-primary font-body-md text-body-md font-bold rounded-lg hover:bg-primary/10 transition-colors flex items-center gap-2">
+                    Open Telegram <span class="material-symbols-outlined">open_in_new</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full bg-surface-container-lowest border-t border-outline-variant py-stack-lg px-margin-desktop flex flex-col md:flex-row justify-between items-center z-10 mt-auto">
+<div class="text-label-sm font-bold text-primary mb-4 md:mb-0">
+            © 2024 VicoGuard AI. Red Team Authority.
+        </div>
+<div class="flex gap-gutter">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Terms of Service</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">API Status</a>
+</div>
+</footer>
+<script>
+        function startScan() {
+            document.getElementById('hero-section').classList.add('hidden');
+            document.getElementById('scanning-state').classList.remove('hidden');
+            document.getElementById('scanning-state').classList.add('flex');
+            
+            const terminal = document.getElementById('terminal-content');
+            const logs = [
+                "[$] TARGET: https://your-domain.com",
+                "[$] MAPPING PUBLIC SURFACE...",
+                "[$] DETECTED: React Frontend (Vite)",
+                "[$] DETECTED: Supabase Backend API",
+                "[$] ANALYZING SUPABASE RLS...",
+                "[-] WARN: Anonymous access detected on 'users' table.",
+                "[-] ERR: RLS policies misconfigured for SELECT/DELETE.",
+                "[$] COMPILING REPORT..."
+            ];
+            
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i < logs.length) {
+                    const newLog = document.createElement('div');
+                    newLog.innerHTML = logs[i].replace(/\[\$\]/g, '<span class="text-on-surface-variant">[$]</span>').replace(/\[-\]/g, '<span class="text-alert-crimson">[-]</span>');
+                    terminal.insertBefore(newLog, terminal.lastElementChild);
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(showResults, 1000);
+                }
+            }, 600); // Simulated delay
+        }
+
+        function showResults() {
+            document.getElementById('scanning-state').classList.add('hidden');
+            document.getElementById('scanning-state').classList.remove('flex');
+            document.getElementById('results-state').classList.remove('hidden');
+            document.getElementById('results-state').classList.add('flex');
+        }
+    </script>
+</body></html>

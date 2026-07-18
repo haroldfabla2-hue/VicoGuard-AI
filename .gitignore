@@ -1,0 +1,79 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Secrets & tokens
+token.json
+token_personal.json
+token_brandistry.json
+credentials.json
+client_secret*.json
+*.env
+.env
+
+# Databases (generated at runtime)
+*.db
+
+# Temporary & logs
+*.log
+*.tmp
+full_transcript.txt
+
+# Node (if any)
+node_modules/
+
+# PDF papers (too large for git)
+docs_pdf/
+
+# Antigravity agent data
+.agents/
+
+# ===== LOCAL-ONLY SCRIPTS (contain tokens, local paths, or dev utilities) =====
+auth_drive.py
+auth_drive_manual.py
+upload_to_drive.py
+src/scripts/test_github.py
+src/scripts/create_github_repo.py
+src/scripts/clean_and_push.py
+src/scripts/scan_secrets.py
+src/scripts/list_all_repos.py
+src/scripts/read_silhouette_core.py
+src/scripts/read_silhouette_repos.py
+src/scripts/download_and_summarize.py
+src/scripts/download_direct.py
+src/scripts/download_drive_pdfs.py
+src/scripts/download_real_pdfs.py
+src/scripts/download_with_api.py
+src/scripts/download_with_full_scope.py
+src/scripts/summarize_pdfs.py
+src/scripts/check_pdf_libs.py
+src/scripts/check_token_info.py
+src/scripts/get_drive_file_meta.py
+src/scripts/inspect_drive_files.py
+src/scripts/list_all_meta.py
+src/scripts/list_drive_details.py
+src/scripts/list_drive_full.py
+src/scripts/list_drive_pdfs.py
+src/scripts/list_drive_trashed.py
+src/scripts/run_and_debug_dl.py

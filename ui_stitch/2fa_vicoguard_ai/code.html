@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Two-Factor Authentication - VicoGuard AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-surface": "#e2e2e9",
+                      "on-tertiary-fixed": "#2a1700",
+                      "surface-container-high": "#282a30",
+                      "on-primary-fixed": "#002113",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "surface": "#111319",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "on-secondary-container": "#c4abff",
+                      "on-error": "#690005",
+                      "inverse-surface": "#e2e2e9",
+                      "outline-variant": "#3c4a42",
+                      "surface-bright": "#37393f",
+                      "inverse-primary": "#006c49",
+                      "surface-variant": "#33353a",
+                      "surface-tint": "#4edea3",
+                      "surface-container-lowest": "#0c0e13",
+                      "outline": "#86948a",
+                      "on-error-container": "#ffdad6",
+                      "on-surface-variant": "#bbcabf",
+                      "tertiary": "#ffb95f",
+                      "on-secondary-fixed-variant": "#5516be",
+                      "background": "#111319",
+                      "primary-fixed-dim": "#4edea3",
+                      "error-container": "#93000a",
+                      "surface-dim": "#111319",
+                      "primary-container": "#10b981",
+                      "primary": "#4edea3",
+                      "on-primary-fixed-variant": "#005236",
+                      "primary-fixed": "#6ffbbe",
+                      "surface-container": "#1e1f25",
+                      "error": "#ffb4ab",
+                      "surface-container-low": "#191b21",
+                      "on-tertiary-container": "#523200",
+                      "on-secondary": "#3c0091",
+                      "inverse-on-surface": "#2e3036",
+                      "surface-container-highest": "#33353a",
+                      "secondary-fixed-dim": "#d0bcff",
+                      "secondary-fixed": "#e9ddff",
+                      "on-primary": "#003824",
+                      "on-background": "#e2e2e9",
+                      "on-primary-container": "#00422b",
+                      "on-secondary-fixed": "#23005c",
+                      "on-tertiary": "#472a00",
+                      "secondary-container": "#571bc1",
+                      "tertiary-fixed": "#ffddb8",
+                      "secondary": "#d0bcff",
+                      "tertiary-container": "#e29100"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter": "16px",
+                      "xl": "40px",
+                      "unit": "4px",
+                      "lg": "24px",
+                      "xs": "4px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "32px",
+                      "sm": "8px",
+                      "md": "16px"
+              },
+              "fontFamily": {
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-mono": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-md-mobile": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "headline-sm": [
+                              "18px",
+                              {
+                                      "lineHeight": "24px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.04em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-mono": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "letterSpacing": "0em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-md-mobile": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "code-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0em",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body {
+            background-color: #080A0F;
+            color: #e2e2e9;
+        }
+        
+        .glass-card {
+            background-color: rgba(22, 28, 40, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .input-box {
+            background-color: #080A0F;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #e2e2e9;
+            text-align: center;
+        }
+
+        .input-box:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 4px rgba(16, 185, 129, 0.5);
+        }
+        
+        /* Remove arrows from number input */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 antialiased">
+<!-- Background Texture/Image (Abstract Obsidian Stealth vibe) -->
+<div class="fixed inset-0 z-[-1] opacity-20" data-alt="A dark, abstract digital landscape resembling obsidian glass with subtle, glowing emerald green grid lines. The lighting is low and moody, emphasizing a sleek, high-tech, and secure 'Obsidian Stealth' aesthetic. Soft atmospheric depth of field." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBTIwJ4hwhQiZxSGDSV_AqYYo9rSIuBzHbRd4Thswyx3d9ldYbU0LVeKdNBJ7Amj3iUarM5xrEaVZ3xpDLwSuXEzQJiC_xbtu34mFdEwFSa1zW_EJegjWJTJ54NGMQdJ9HDj0SjLjvfTNcV9J7BYJW2C9DxKdpcpsd_atSRammpAqy2v8Xhu9vDsjU8FLF-UdS2SFrFOIRMZAGhzum7_txI5lHWSTvPPttPZe4G0XbMgiC8ljaBaPCN')"></div>
+<div class="glass-card w-full max-w-md rounded-xl p-8 flex flex-col items-center">
+<!-- Icon -->
+<div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center mb-6 border border-[rgba(255,255,255,0.08)]">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">shield_lock</span>
+</div>
+<!-- Typography -->
+<h1 class="font-headline-md text-headline-md text-on-surface mb-2 text-center tracking-tight">Two-Factor Authentication</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mb-8 text-center">
+            Enter the 6-digit security code generated by your authenticator app to verify your identity.
+        </p>
+<!-- Form -->
+<form class="w-full flex flex-col gap-6" onsubmit="event.preventDefault();">
+<!-- 2FA Inputs -->
+<div class="flex justify-between gap-2 sm:gap-4 w-full" id="otp-container">
+<input autofocus="" class="input-box w-12 h-14 sm:w-14 sm:h-16 rounded font-label-mono text-label-mono text-xl focus:ring-0 transition-colors" inputmode="numeric" maxlength="1" pattern="[0-9]*" type="text"/>
+<input class="input-box w-12 h-14 sm:w-14 sm:h-16 rounded font-label-mono text-label-mono text-xl focus:ring-0 transition-colors" inputmode="numeric" maxlength="1" pattern="[0-9]*" type="text"/>
+<input class="input-box w-12 h-14 sm:w-14 sm:h-16 rounded font-label-mono text-label-mono text-xl focus:ring-0 transition-colors" inputmode="numeric" maxlength="1" pattern="[0-9]*" type="text"/>
+<input class="input-box w-12 h-14 sm:w-14 sm:h-16 rounded font-label-mono text-label-mono text-xl focus:ring-0 transition-colors" inputmode="numeric" maxlength="1" pattern="[0-9]*" type="text"/>
+<input class="input-box w-12 h-14 sm:w-14 sm:h-16 rounded font-label-mono text-label-mono text-xl focus:ring-0 transition-colors" inputmode="numeric" maxlength="1" pattern="[0-9]*" type="text"/>
+<input class="input-box w-12 h-14 sm:w-14 sm:h-16 rounded font-label-mono text-label-mono text-xl focus:ring-0 transition-colors" inputmode="numeric" maxlength="1" pattern="[0-9]*" type="text"/>
+</div>
+<!-- CTA -->
+<button class="w-full bg-primary-container text-on-primary-container hover:bg-primary transition-colors font-headline-sm text-headline-sm py-3 rounded mt-2 flex items-center justify-center gap-2" type="submit">
+                Verify
+                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</form>
+<!-- Links -->
+<div class="mt-8 flex flex-col items-center gap-4 w-full border-t border-[rgba(255,255,255,0.08)] pt-6">
+<a class="font-body-md text-body-md text-primary hover:text-primary-fixed transition-colors" href="#">Use Backup Code</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+                Back to Login
+            </a>
+</div>
+</div>
+<script>
+        // Simple logic to auto-advance focus on inputs
+        const container = document.getElementById('otp-container');
+        const inputs = container.querySelectorAll('input');
+
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                // Ensure only numbers
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                
+                if (e.target.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+            
+            // Handle paste
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+                
+                if (pastedData) {
+                    for (let i = 0; i < pastedData.length; i++) {
+                        if (inputs[i]) {
+                            inputs[i].value = pastedData[i];
+                        }
+                    }
+                    // Focus next empty input or last input
+                    const nextInput = inputs[pastedData.length] || inputs[inputs.length - 1];
+                    nextInput.focus();
+                }
+            });
+        });
+    </script>
+</body></html>

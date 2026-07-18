@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Executive Threat &amp; Remediation Dashboard - VicoGuard AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "tertiary-container": "#e29100",
+                      "on-secondary-container": "#c4abff",
+                      "on-tertiary-container": "#523200",
+                      "surface-tint": "#4edea3",
+                      "secondary-fixed-dim": "#d0bcff",
+                      "on-surface": "#e2e2e9",
+                      "on-primary-fixed-variant": "#005236",
+                      "on-primary": "#003824",
+                      "on-tertiary": "#472a00",
+                      "on-error-container": "#ffdad6",
+                      "secondary-fixed": "#e9ddff",
+                      "tertiary": "#ffb95f",
+                      "on-secondary": "#3c0091",
+                      "surface-container-highest": "#33353a",
+                      "surface-container-low": "#191b21",
+                      "on-primary-fixed": "#002113",
+                      "error": "#ffb4ab",
+                      "surface-container-high": "#282a30",
+                      "on-error": "#690005",
+                      "on-surface-variant": "#bbcabf",
+                      "surface-bright": "#37393f",
+                      "on-secondary-fixed": "#23005c",
+                      "inverse-on-surface": "#2e3036",
+                      "primary-fixed-dim": "#4edea3",
+                      "primary": "#4edea3",
+                      "inverse-surface": "#e2e2e9",
+                      "surface-container-lowest": "#0c0e13",
+                      "primary-fixed": "#6ffbbe",
+                      "secondary-container": "#571bc1",
+                      "background": "#111319",
+                      "surface-variant": "#33353a",
+                      "surface-dim": "#111319",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "on-background": "#e2e2e9",
+                      "surface": "#111319",
+                      "surface-container": "#1e1f25",
+                      "tertiary-fixed": "#ffddb8",
+                      "on-tertiary-fixed": "#2a1700",
+                      "outline-variant": "#3c4a42",
+                      "outline": "#86948a",
+                      "on-primary-container": "#00422b",
+                      "secondary": "#d0bcff",
+                      "primary-container": "#10b981",
+                      "inverse-primary": "#006c49",
+                      "on-secondary-fixed-variant": "#5516be",
+                      "error-container": "#93000a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xl": "40px",
+                      "margin-mobile": "16px",
+                      "unit": "4px",
+                      "md": "16px",
+                      "margin-desktop": "32px",
+                      "gutter": "16px",
+                      "lg": "24px",
+                      "xs": "4px",
+                      "sm": "8px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-md-mobile": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-mono": [
+                              "JetBrains Mono"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md-mobile": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-sm": [
+                              "18px",
+                              {
+                                      "lineHeight": "24px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-mono": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "letterSpacing": "0em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.04em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "code-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0em",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body {
+            background-color: #080A0F;
+            color: #e2e2e9;
+        }
+        .glass-panel {
+            background-color: rgba(22, 28, 40, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .glass-overlay {
+            background-color: rgba(22, 28, 40, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .gauge-glow {
+            filter: drop-shadow(0 0 12px #ffb4ab);
+        }
+        .ai-reasoning {
+            background-color: rgba(87, 27, 193, 0.15); /* secondary-container with opacity */
+            backdrop-filter: blur(24px);
+            border: 1px solid #571bc1;
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+<!-- SideNavBar -->
+<nav class="hidden md:flex fixed left-0 top-0 h-full w-64 flex-col p-md z-40 bg-surface-container-lowest/80 dark:bg-surface-container-lowest/80 backdrop-blur-lg border-r border-white/5 shadow-xl">
+<div class="mb-xl">
+<h1 class="font-headline-sm text-headline-sm text-primary">VicoGuard AI</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Autonomous Security</p>
+</div>
+<ul class="flex flex-col gap-sm flex-1">
+<li>
+<a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface px-md py-sm hover:bg-white/5 transition-all rounded-lg font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="security">security</span>
+                    Command Center
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface px-md py-sm hover:bg-white/5 transition-all rounded-lg font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+                    Live Execution
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md bg-secondary-container/20 text-primary rounded-xl px-md py-sm border border-primary/20 hover:bg-white/5 transition-all translate-x-1 duration-200 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface px-md py-sm hover:bg-white/5 transition-all rounded-lg font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                    Settings
+                </a>
+</li>
+</ul>
+</nav>
+<!-- Main Content -->
+<main class="flex-1 md:ml-64 flex flex-col h-full overflow-y-auto relative">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full md:w-[calc(100%-16rem)] z-50 flex justify-between items-center px-margin-desktop h-16 bg-surface/70 dark:bg-surface/70 backdrop-blur-xl border-b border-white/10">
+<div class="flex items-center gap-md md:hidden">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface dark:text-on-surface">VicoGuard AI</span>
+</div>
+<div class="hidden md:flex gap-md">
+<!-- Navigation links hidden on desktop based on prompt, but available in JSON -->
+<a class="text-on-surface-variant dark:text-on-surface-variant font-body-md text-body-md hover:bg-white/5 transition-colors px-sm py-xs rounded" href="#">Docs</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-body-md text-body-md hover:bg-white/5 transition-colors px-sm py-xs rounded" href="#">Account</a>
+</div>
+<div class="flex items-center gap-sm">
+<button class="text-primary dark:text-primary hover:bg-white/5 transition-colors p-sm rounded-full">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Canvas -->
+<div class="p-margin-mobile md:p-margin-desktop pt-24 md:pt-24 max-w-7xl mx-auto w-full flex flex-col gap-lg">
+<!-- Top Section: Gauge & KPIs -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+<!-- Security Score Gauge -->
+<div class="glass-panel rounded-xl p-lg flex flex-col items-center justify-center col-span-1 lg:col-span-1 relative">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-md">System Status</h2>
+<div class="relative w-48 h-48 flex items-center justify-center gauge-glow">
+<!-- SVG Gauge -->
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<!-- Background Circle -->
+<circle cx="50" cy="50" fill="none" r="45" stroke="rgba(255,255,255,0.1)" stroke-dasharray="283" stroke-dashoffset="0" stroke-width="4"></circle>
+<!-- Progress Circle (38%) -->
+<circle class="transition-all duration-1000 ease-out" cx="50" cy="50" fill="none" r="45" stroke="#ffb4ab" stroke-dasharray="283" stroke-dashoffset="175" stroke-width="4"></circle>
+</svg>
+<div class="absolute flex flex-col items-center justify-center text-center">
+<span class="font-display-lg text-display-lg text-error">38</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant uppercase tracking-widest mt-1">Score</span>
+</div>
+</div>
+<div class="mt-md text-center">
+<span class="inline-block px-sm py-xs bg-error-container/20 border border-error/50 text-error font-label-mono text-label-mono rounded">CRITICAL RISK</span>
+</div>
+</div>
+<!-- KPI Row -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-md col-span-1 lg:col-span-2">
+<div class="glass-panel rounded-xl p-md flex flex-col justify-between">
+<span class="font-label-mono text-label-mono text-on-surface-variant flex items-center gap-sm">
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+                            Critical Alerts
+                        </span>
+<span class="font-display-lg text-display-lg text-error mt-sm">1</span>
+</div>
+<div class="glass-panel rounded-xl p-md flex flex-col justify-between">
+<span class="font-label-mono text-label-mono text-on-surface-variant flex items-center gap-sm">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+                            Informational
+                        </span>
+<span class="font-display-lg text-display-lg text-tertiary mt-sm">3</span>
+</div>
+<div class="glass-panel rounded-xl p-md flex flex-col justify-between opacity-50">
+<span class="font-label-mono text-label-mono text-on-surface-variant flex items-center gap-sm">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+                            Active Threats
+                        </span>
+<span class="font-display-lg text-display-lg text-outline mt-sm">0</span>
+</div>
+</div>
+</div>
+<!-- Content Section: Remediation Stream -->
+<div class="flex flex-col gap-md">
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="bolt">bolt</span>
+                    Remediation Stream
+                </h3>
+<!-- Primary Remediation Card -->
+<div class="ai-reasoning rounded-xl overflow-hidden flex flex-col">
+<!-- Card Header -->
+<div class="p-md border-b border-white/10 flex justify-between items-start flex-wrap gap-sm bg-surface-container/50">
+<div>
+<div class="flex items-center gap-sm mb-xs">
+<span class="px-sm py-xs bg-error-container/20 border border-error/50 text-error font-label-mono text-label-mono rounded flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]" data-icon="warning">warning</span>
+                                    Critical Threat
+                                </span>
+<span class="font-label-mono text-label-mono text-on-surface-variant text-xs">Generated by VicoGuard AI</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Unauthenticated Database Access (Supabase RLS)</h4>
+</div>
+<span class="font-label-mono text-label-mono text-on-surface-variant text-xs">2 mins ago</span>
+</div>
+<!-- Code Split Diff -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-px bg-white/5">
+<!-- Vulnerable Code (Red) -->
+<div class="p-md bg-[#161C28] flex flex-col gap-sm">
+<div class="flex justify-between items-center text-xs text-on-surface-variant border-b border-white/5 pb-xs">
+<span class="font-label-mono text-label-mono text-error">Vulnerable Policy</span>
+<span>supabase/policies.sql</span>
+</div>
+<pre class="font-code-sm text-code-sm text-on-surface overflow-x-auto"><code><span class="text-outline">-- Allows anonymous read access</span>
+CREATE POLICY "Public profiles are viewable by everyone."
+ON profiles FOR SELECT
+<span class="bg-error/20 text-error px-1 -mx-1">USING ( true );</span></code></pre>
+</div>
+<!-- Patched Code (Green) -->
+<div class="p-md bg-[#161C28] flex flex-col gap-sm">
+<div class="flex justify-between items-center text-xs text-on-surface-variant border-b border-white/5 pb-xs">
+<span class="font-label-mono text-label-mono text-primary">Proposed Patch</span>
+<span>supabase/policies.sql</span>
+</div>
+<pre class="font-code-sm text-code-sm text-on-surface overflow-x-auto"><code><span class="text-outline">-- Restricts read access to authenticated users</span>
+CREATE POLICY "Public profiles are viewable by everyone."
+ON profiles FOR SELECT
+<span class="bg-primary/20 text-primary px-1 -mx-1">USING ( auth.role() = 'authenticated' );</span></code></pre>
+</div>
+</div>
+<!-- Action Footer -->
+<div class="p-md border-t border-white/10 bg-surface-container/50 flex justify-end">
+<button class="bg-primary-container hover:bg-primary-fixed transition-colors text-on-primary font-label-mono text-label-mono px-lg py-sm rounded-lg flex items-center gap-sm">
+<span class="material-symbols-outlined" data-icon="send">send</span>
+                            Dispatch Remediation Patch to Telegram
+                        </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="mt-auto docked full-width bottom-0 h-8 bg-surface-container-low/90 dark:bg-surface-container-low/90 backdrop-blur-md border-t border-white/10 flex items-center justify-between px-margin-desktop z-50">
+<span class="font-label-mono text-label-mono text-primary">© 2024 VicoGuard AI • Autonomous Engine Online</span>
+<div class="flex gap-md">
+<a class="font-label-mono text-label-mono text-outline hover:text-primary-fixed transition-colors" href="#">Threat Map</a>
+<a class="font-label-mono text-label-mono text-outline hover:text-primary-fixed transition-colors" href="#">System Health</a>
+<a class="font-label-mono text-label-mono text-outline hover:text-primary-fixed transition-colors" href="#">API Status</a>
+</div>
+</footer>
+</main>
+</body></html>

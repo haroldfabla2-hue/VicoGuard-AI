@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login - VicoGuard AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface": "#e2e2e9",
+                        "on-tertiary-fixed": "#2a1700",
+                        "surface-container-high": "#282a30",
+                        "on-primary-fixed": "#002113",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface": "#111319",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-secondary-container": "#c4abff",
+                        "on-error": "#690005",
+                        "inverse-surface": "#e2e2e9",
+                        "outline-variant": "#3c4a42",
+                        "surface-bright": "#37393f",
+                        "inverse-primary": "#006c49",
+                        "surface-variant": "#33353a",
+                        "surface-tint": "#4edea3",
+                        "surface-container-lowest": "#0c0e13",
+                        "outline": "#86948a",
+                        "on-error-container": "#ffdad6",
+                        "on-surface-variant": "#bbcabf",
+                        "tertiary": "#ffb95f",
+                        "on-secondary-fixed-variant": "#5516be",
+                        "background": "#111319",
+                        "primary-fixed-dim": "#4edea3",
+                        "error-container": "#93000a",
+                        "surface-dim": "#111319",
+                        "primary-container": "#10b981",
+                        "primary": "#4edea3",
+                        "on-primary-fixed-variant": "#005236",
+                        "primary-fixed": "#6ffbbe",
+                        "surface-container": "#1e1f25",
+                        "error": "#ffb4ab",
+                        "surface-container-low": "#191b21",
+                        "on-tertiary-container": "#523200",
+                        "on-secondary": "#3c0091",
+                        "inverse-on-surface": "#2e3036",
+                        "surface-container-highest": "#33353a",
+                        "secondary-fixed-dim": "#d0bcff",
+                        "secondary-fixed": "#e9ddff",
+                        "on-primary": "#003824",
+                        "on-background": "#e2e2e9",
+                        "on-primary-container": "#00422b",
+                        "on-secondary-fixed": "#23005c",
+                        "on-tertiary": "#472a00",
+                        "secondary-container": "#571bc1",
+                        "tertiary-fixed": "#ffddb8",
+                        "secondary": "#d0bcff",
+                        "tertiary-container": "#e29100"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "xl": "40px",
+                        "unit": "4px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "32px",
+                        "sm": "8px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-mono": ["JetBrains Mono"],
+                        "headline-md-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "code-sm": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.01em", "fontWeight": "400" }],
+                        "label-mono": ["13px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "500" }],
+                        "headline-md-mobile": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "400" }],
+                        "code-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #080A0F; /* Level 0 Canvas */
+        }
+        .bespoke-border {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .focus-glow:focus {
+            border-color: theme('colors.primary');
+            box-shadow: 0 0 4px theme('colors.primary');
+            outline: none;
+        }
+    </style>
+</head>
+<body class="text-on-background min-h-screen flex items-center justify-center font-body-md">
+<div class="flex min-h-screen w-full">
+<!-- Left Side: Branding (Hidden on mobile) -->
+<div class="hidden lg:flex w-1/2 flex-col justify-between p-margin-desktop relative overflow-hidden bg-surface-container-lowest bespoke-border border-r">
+<!-- Decorative Background Element -->
+<div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: radial-gradient(circle at 0% 0%, theme('colors.primary-container'), transparent 50%);"></div>
+<div class="relative z-10">
+<h1 class="font-headline-md text-headline-md text-primary tracking-tighter flex items-center gap-xs">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">security</span>
+                    VicoGuard AI
+                </h1>
+</div>
+<div class="relative z-10 mt-auto pb-xl max-w-md">
+<h2 class="font-display-lg text-display-lg mb-md leading-tight">Welcome back,<br/>defender.</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                    Access the Obsidian Stealth Protection network. Monitor threats in real-time with AI-driven precision and absolute control.
+                </p>
+</div>
+</div>
+<!-- Right Side: Login Form -->
+<div class="w-full lg:w-1/2 flex flex-col justify-center px-margin-mobile py-lg lg:px-xl relative bg-[#080A0F]">
+<div class="w-full max-w-[400px] mx-auto flex flex-col">
+<!-- Mobile Branding -->
+<div class="lg:hidden mb-lg">
+<h1 class="font-headline-sm text-headline-sm text-primary flex items-center gap-xs justify-center">
+<span class="material-symbols-outlined text-xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">security</span>
+                        VicoGuard AI
+                    </h1>
+</div>
+<div class="mb-lg">
+<h2 class="font-headline-md text-headline-md lg:text-[32px] lg:leading-[40px] tracking-tight mb-sm">Sign in to VicoGuard</h2>
+<p class="text-on-surface-variant font-body-md text-body-md">Enter your credentials to access the console.</p>
+</div>
+<form class="space-y-md">
+<!-- Email Input -->
+<div>
+<label class="block font-label-mono text-label-mono text-on-surface-variant mb-xs" for="email">Email Address</label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-sm pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">mail</span>
+</span>
+<input class="w-full bg-surface-container-lowest text-on-surface bespoke-border rounded pl-xl py-sm font-body-md text-body-md focus-glow transition-all" id="email" placeholder="operator@vicoguard.io" required="" type="email"/>
+</div>
+</div>
+<!-- Password Input -->
+<div>
+<div class="flex justify-between items-center mb-xs">
+<label class="block font-label-mono text-label-mono text-on-surface-variant" for="password">Password</label>
+<a class="font-label-mono text-code-sm text-primary hover:text-primary-fixed transition-colors" href="#">Forgot password?</a>
+</div>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-sm pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+</span>
+<input class="w-full bg-surface-container-lowest text-on-surface bespoke-border rounded pl-xl pr-xl py-sm font-body-md text-body-md focus-glow transition-all" id="password" placeholder="••••••••••••" required="" type="password"/>
+<button aria-label="Toggle password visibility" class="absolute inset-y-0 right-0 flex items-center pr-sm text-on-surface-variant hover:text-on-surface focus:outline-none" type="button">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+</div>
+</div>
+<!-- Remember Me -->
+<div class="flex items-center">
+<input class="h-4 w-4 bg-surface-container-lowest border-outline-variant rounded focus:ring-primary focus:ring-1 text-primary cursor-pointer" id="remember-me" name="remember-me" type="checkbox"/>
+<label class="ml-sm block font-body-md text-body-md text-on-surface-variant cursor-pointer" for="remember-me">
+                            Remember me for 30 days
+                        </label>
+</div>
+<!-- Sign In Button -->
+<button class="w-full flex justify-center py-sm px-md border border-transparent rounded bg-primary-container text-on-primary-container font-headline-sm text-body-md hover:bg-primary transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-offset-[#080A0F]" type="submit">
+                        Sign In
+                    </button>
+</form>
+<div class="mt-lg">
+<div class="relative">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-[rgba(255,255,255,0.08)]"></div>
+</div>
+<div class="relative flex justify-center text-sm">
+<span class="px-sm bg-[#080A0F] text-on-surface-variant font-label-mono text-code-sm uppercase tracking-wider">Or continue with</span>
+</div>
+</div>
+<div class="mt-lg grid grid-cols-2 gap-sm">
+<button class="w-full flex items-center justify-center gap-sm px-sm py-xs border border-[rgba(255,255,255,0.12)] rounded bg-surface-container-low hover:bg-surface-container-high transition-colors font-label-mono text-label-mono text-on-surface">
+<svg class="h-4 w-4" fill="currentColor" viewbox="0 0 24 24">
+<path d="M12.0003 4.75C13.7703 4.75 15.3553 5.36002 16.6053 6.54998L20.0303 3.125C17.9502 1.19 15.2353 0 12.0003 0C7.31028 0 3.25527 2.69 1.28027 6.60998L5.27028 9.70498C6.21525 6.86002 8.87028 4.75 12.0003 4.75Z" fill="#EA4335"></path>
+<path d="M23.49 12.275C23.49 11.49 23.415 10.73 23.3 10H12V14.51H18.47C18.18 15.99 17.34 17.25 16.08 18.1L19.945 21.1C22.2 19.01 23.49 15.92 23.49 12.275Z" fill="#4285F4"></path>
+<path d="M5.26498 14.2949C5.02498 13.5699 4.88501 12.7999 4.88501 11.9999C4.88501 11.1999 5.01998 10.4299 5.26498 9.7049L1.275 6.60986C0.46 8.22986 0 10.0599 0 11.9999C0 13.9399 0.46 15.7699 1.28 17.3899L5.26498 14.2949Z" fill="#FBBC05"></path>
+<path d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.8704 19.245 6.21537 17.135 5.26537 14.29L1.27539 17.385C3.25539 21.31 7.3104 24.0001 12.0004 24.0001Z" fill="#34A853"></path>
+</svg>
+                            Google
+                        </button>
+<button class="w-full flex items-center justify-center gap-sm px-sm py-xs border border-[rgba(255,255,255,0.12)] rounded bg-surface-container-low hover:bg-surface-container-high transition-colors font-label-mono text-label-mono text-on-surface">
+<svg class="h-4 w-4" fill="currentColor" viewbox="0 0 24 24">
+<path clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" fill-rule="evenodd"></path>
+</svg>
+                            GitHub
+                        </button>
+</div>
+</div>
+<div class="mt-lg text-center">
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Don't have an account? 
+                        <a class="font-headline-sm text-body-md text-primary hover:text-primary-fixed transition-colors" href="#">Sign up free</a>
+</p>
+</div>
+</div>
+</div>
+</div>
+</body></html>

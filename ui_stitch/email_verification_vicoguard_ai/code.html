@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Email Verification - VicoGuard AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-surface": "#e2e2e9",
+                      "on-tertiary-fixed": "#2a1700",
+                      "surface-container-high": "#282a30",
+                      "on-primary-fixed": "#002113",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "surface": "#111319",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "on-secondary-container": "#c4abff",
+                      "on-error": "#690005",
+                      "inverse-surface": "#e2e2e9",
+                      "outline-variant": "#3c4a42",
+                      "surface-bright": "#37393f",
+                      "inverse-primary": "#006c49",
+                      "surface-variant": "#33353a",
+                      "surface-tint": "#4edea3",
+                      "surface-container-lowest": "#0c0e13",
+                      "outline": "#86948a",
+                      "on-error-container": "#ffdad6",
+                      "on-surface-variant": "#bbcabf",
+                      "tertiary": "#ffb95f",
+                      "on-secondary-fixed-variant": "#5516be",
+                      "background": "#111319",
+                      "primary-fixed-dim": "#4edea3",
+                      "error-container": "#93000a",
+                      "surface-dim": "#111319",
+                      "primary-container": "#10b981",
+                      "primary": "#4edea3",
+                      "on-primary-fixed-variant": "#005236",
+                      "primary-fixed": "#6ffbbe",
+                      "surface-container": "#1e1f25",
+                      "error": "#ffb4ab",
+                      "surface-container-low": "#191b21",
+                      "on-tertiary-container": "#523200",
+                      "on-secondary": "#3c0091",
+                      "inverse-on-surface": "#2e3036",
+                      "surface-container-highest": "#33353a",
+                      "secondary-fixed-dim": "#d0bcff",
+                      "secondary-fixed": "#e9ddff",
+                      "on-primary": "#003824",
+                      "on-background": "#e2e2e9",
+                      "on-primary-container": "#00422b",
+                      "on-secondary-fixed": "#23005c",
+                      "on-tertiary": "#472a00",
+                      "secondary-container": "#571bc1",
+                      "tertiary-fixed": "#ffddb8",
+                      "secondary": "#d0bcff",
+                      "tertiary-container": "#e29100"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter": "16px",
+                      "xl": "40px",
+                      "unit": "4px",
+                      "lg": "24px",
+                      "xs": "4px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "32px",
+                      "sm": "8px",
+                      "md": "16px"
+              },
+              "fontFamily": {
+                      "headline-sm": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "label-mono": ["JetBrains Mono"],
+                      "headline-md-mobile": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "code-sm": ["JetBrains Mono"]
+              },
+              "fontSize": {
+                      "headline-sm": ["18px", {"lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                      "label-mono": ["13px", {"lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "500"}],
+                      "headline-md-mobile": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                      "code-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+      </script>
+<style>
+          body { background-color: #080A0F; } /* Deepest Space canvas */
+      </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-margin-mobile md:p-margin-desktop text-on-surface font-body-md">
+<!-- Transactional layout: Nav suppressed -->
+<main class="w-full max-w-md">
+<!-- Brand / Identity -->
+<div class="flex justify-center mb-12">
+<span class="font-display-lg text-headline-md text-primary tracking-tighter">VicoGuard AI</span>
+</div>
+<!-- Glassmorphism Card (Level 2) -->
+<div class="bg-[rgba(22,28,40,0.7)] backdrop-blur-[12px] border border-[rgba(255,255,255,0.12)] rounded-xl p-lg flex flex-col items-center text-center shadow-[0px_4px_24px_rgba(0,0,0,0.5)]">
+<!-- Large Emerald Mail Icon -->
+<div class="w-20 h-20 rounded-full bg-[rgba(16,185,129,0.1)] border border-primary-container flex items-center justify-center mb-6" style="filter: drop-shadow(0 0 8px rgba(16,185,129,0.3));">
+<span class="material-symbols-outlined text-primary-container text-4xl" style="font-variation-settings: 'FILL' 1;">mark_email_read</span>
+</div>
+<!-- Headline & Subtitle -->
+<h1 class="font-headline-md text-headline-md text-on-surface mb-2">Check your inbox</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-8">
+                Verification link sent to <br/>
+<span class="font-label-mono text-label-mono text-on-surface">alberto@vicoguard.ai</span>
+</p>
+<!-- Resend Button -->
+<button class="w-full py-3 px-6 bg-surface-container-highest border border-[rgba(255,255,255,0.08)] rounded text-on-surface font-label-mono text-label-mono hover:bg-[rgba(255,255,255,0.04)] transition-colors mb-8 flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+                Resend Email
+            </button>
+<!-- Progress Dots -->
+<div class="flex gap-2">
+<div class="w-2 h-2 rounded-full bg-primary-container" style="filter: drop-shadow(0 0 4px #10b981);"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+</div>
+<span class="font-label-mono text-label-mono text-on-surface-variant mt-3 opacity-60">Step 1 of 3</span>
+</div>
+<!-- Back to login (contextual escape) -->
+<div class="mt-8 text-center">
+<a class="font-label-mono text-label-mono text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center gap-2" href="#">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span>
+                Return to Login
+            </a>
+</div>
+</main>
+</body></html>

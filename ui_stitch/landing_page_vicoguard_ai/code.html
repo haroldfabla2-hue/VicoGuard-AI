@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VicoGuard AI - Your AI Security Team That Never Sleeps</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface": "#e2e2e9",
+                        "on-tertiary-fixed": "#2a1700",
+                        "surface-container-high": "#282a30",
+                        "on-primary-fixed": "#002113",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface": "#111319",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-secondary-container": "#c4abff",
+                        "on-error": "#690005",
+                        "inverse-surface": "#e2e2e9",
+                        "outline-variant": "#3c4a42",
+                        "surface-bright": "#37393f",
+                        "inverse-primary": "#006c49",
+                        "surface-variant": "#33353a",
+                        "surface-tint": "#4edea3",
+                        "surface-container-lowest": "#0c0e13",
+                        "outline": "#86948a",
+                        "on-error-container": "#ffdad6",
+                        "on-surface-variant": "#bbcabf",
+                        "tertiary": "#ffb95f",
+                        "on-secondary-fixed-variant": "#5516be",
+                        "background": "#111319",
+                        "primary-fixed-dim": "#4edea3",
+                        "error-container": "#93000a",
+                        "surface-dim": "#111319",
+                        "primary-container": "#10b981",
+                        "primary": "#4edea3",
+                        "on-primary-fixed-variant": "#005236",
+                        "primary-fixed": "#6ffbbe",
+                        "surface-container": "#1e1f25",
+                        "error": "#ffb4ab",
+                        "surface-container-low": "#191b21",
+                        "on-tertiary-container": "#523200",
+                        "on-secondary": "#3c0091",
+                        "inverse-on-surface": "#2e3036",
+                        "surface-container-highest": "#33353a",
+                        "secondary-fixed-dim": "#d0bcff",
+                        "secondary-fixed": "#e9ddff",
+                        "on-primary": "#003824",
+                        "on-background": "#e2e2e9",
+                        "on-primary-container": "#00422b",
+                        "on-secondary-fixed": "#23005c",
+                        "on-tertiary": "#472a00",
+                        "secondary-container": "#571bc1",
+                        "tertiary-fixed": "#ffddb8",
+                        "secondary": "#d0bcff",
+                        "tertiary-container": "#e29100"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "xl": "40px",
+                        "unit": "4px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "32px",
+                        "sm": "8px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-mono": ["JetBrains Mono"],
+                        "headline-md-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "code-sm": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.01em", "fontWeight": "400" }],
+                        "label-mono": ["13px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "500" }],
+                        "headline-md-mobile": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "400" }],
+                        "code-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #080A0F; color: #e2e2e9; }
+        .glass-panel { background: rgba(22, 28, 40, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.12); }
+        .bg-cyber-grid { background-image: linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 24px 24px; }
+        .emerald-glow { box-shadow: 0 0 24px rgba(16, 185, 129, 0.2); }
+    </style>
+</head>
+<body class="antialiased min-h-screen font-body-md bg-cyber-grid bg-fixed">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[rgba(22,28,40,0.7)] backdrop-blur-[12px] border-b border-[rgba(255,255,255,0.08)] shadow-sm">
+<div class="flex items-center justify-between px-margin-desktop h-16 w-full max-w-screen-2xl mx-auto">
+<div class="font-display-lg text-headline-md text-primary tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-container">
+                VicoGuard AI
+            </div>
+<div class="hidden md:flex space-x-lg">
+<a class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 transition-all duration-200 active:scale-95 transition-transform px-3 py-1.5 rounded-DEFAULT" href="#">Features</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 transition-all duration-200 active:scale-95 transition-transform px-3 py-1.5 rounded-DEFAULT" href="#">Pricing</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 transition-all duration-200 active:scale-95 transition-transform px-3 py-1.5 rounded-DEFAULT" href="#">Docs</a>
+</div>
+<div class="flex items-center space-x-md">
+<button class="text-on-surface-variant hover:text-on-surface font-body-md">Sign In</button>
+<button class="bg-primary-container text-on-primary-container font-headline-sm px-4 py-2 rounded-DEFAULT hover:bg-primary transition-colors">Get Started</button>
+</div>
+</div>
+</nav>
+<main class="pt-24 pb-32">
+<!-- Hero Section -->
+<section class="max-w-screen-xl mx-auto px-margin-desktop py-24 flex flex-col items-center text-center">
+<div class="inline-flex items-center space-x-2 bg-surface-container border border-outline-variant rounded-full px-4 py-1 mb-8">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+<span class="font-label-mono text-code-sm text-on-surface-variant">Now protecting 2,400+ SMEs</span>
+</div>
+<h1 class="font-display-lg text-display-lg max-w-4xl mb-6 leading-tight">Your AI Security Team<br/>That Never Sleeps</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-12">Automated threat intelligence, real-time vulnerability scanning, and instant remediation. Built for high-velocity engineering teams.</p>
+<div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 mb-16">
+<button class="bg-primary-container text-on-primary-container font-headline-sm px-8 py-4 rounded-DEFAULT hover:bg-primary transition-all emerald-glow w-full sm:w-auto">Start Free Audit</button>
+<button class="glass-panel text-on-surface font-headline-sm px-8 py-4 rounded-DEFAULT hover:bg-white/5 transition-all w-full sm:w-auto flex items-center justify-center space-x-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+<span>Watch Demo</span>
+</button>
+</div>
+</section>
+<!-- Logos Bar -->
+<section class="border-y border-[rgba(255,255,255,0.08)] py-8 bg-surface-container-lowest/50 backdrop-blur-sm">
+<div class="max-w-screen-xl mx-auto px-margin-desktop flex justify-between items-center opacity-40 grayscale">
+<span class="font-headline-sm text-headline-sm">Acme Corp</span>
+<span class="font-headline-sm text-headline-sm">Globex</span>
+<span class="font-headline-sm text-headline-sm">Soylent</span>
+<span class="font-headline-sm text-headline-sm">Initech</span>
+<span class="font-headline-sm text-headline-sm">Umbrella</span>
+<span class="font-headline-sm text-headline-sm">Massive Dynamic</span>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="relative w-full bottom-0 bg-surface border-t border-[rgba(255,255,255,0.08)]">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-lg px-margin-desktop py-xl w-full max-w-screen-2xl mx-auto">
+<div>
+<div class="font-headline-sm text-headline-sm text-primary mb-4">VicoGuard AI</div>
+<p class="font-body-md text-body-md text-on-surface-variant">© 2024 VicoGuard AI. Obsidian Stealth Protection.</p>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface mb-4">Product</h4>
+<ul class="space-y-2 font-body-md text-body-md text-on-surface-variant">
+<li><a class="hover:text-primary transition-colors" href="#">Features</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Pricing</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface mb-4">Resources</h4>
+<ul class="space-y-2 font-body-md text-body-md text-on-surface-variant">
+<li><a class="hover:text-primary transition-colors" href="#">Docs</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Trust Center</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface mb-4">Legal</h4>
+<ul class="space-y-2 font-body-md text-body-md text-on-surface-variant">
+<li><a class="hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Terms of Service</a></li>
+</ul>
+</div>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VicoGuard AI - Public Trust Badge</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "tertiary-container": "#e29100",
+                        "on-secondary-container": "#c4abff",
+                        "on-tertiary-container": "#523200",
+                        "surface-tint": "#4edea3",
+                        "secondary-fixed-dim": "#d0bcff",
+                        "on-surface": "#e2e2e9",
+                        "on-primary-fixed-variant": "#005236",
+                        "on-primary": "#003824",
+                        "on-tertiary": "#472a00",
+                        "on-error-container": "#ffdad6",
+                        "secondary-fixed": "#e9ddff",
+                        "tertiary": "#ffb95f",
+                        "on-secondary": "#3c0091",
+                        "surface-container-highest": "#33353a",
+                        "surface-container-low": "#191b21",
+                        "on-primary-fixed": "#002113",
+                        "error": "#ffb4ab",
+                        "surface-container-high": "#282a30",
+                        "on-error": "#690005",
+                        "on-surface-variant": "#bbcabf",
+                        "surface-bright": "#37393f",
+                        "on-secondary-fixed": "#23005c",
+                        "inverse-on-surface": "#2e3036",
+                        "primary-fixed-dim": "#4edea3",
+                        "primary": "#4edea3",
+                        "inverse-surface": "#e2e2e9",
+                        "surface-container-lowest": "#0c0e13",
+                        "primary-fixed": "#6ffbbe",
+                        "secondary-container": "#571bc1",
+                        "background": "#111319",
+                        "surface-variant": "#33353a",
+                        "surface-dim": "#111319",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-background": "#e2e2e9",
+                        "surface": "#111319",
+                        "surface-container": "#1e1f25",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-tertiary-fixed": "#2a1700",
+                        "outline-variant": "#3c4a42",
+                        "outline": "#86948a",
+                        "on-primary-container": "#00422b",
+                        "secondary": "#d0bcff",
+                        "primary-container": "#10b981",
+                        "inverse-primary": "#006c49",
+                        "on-secondary-fixed-variant": "#5516be",
+                        "error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xl": "40px",
+                        "margin-mobile": "16px",
+                        "unit": "4px",
+                        "md": "16px",
+                        "margin-desktop": "32px",
+                        "gutter": "16px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "sm": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-md-mobile": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-mono": ["JetBrains Mono"],
+                        "display-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "code-sm": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "400" }],
+                        "headline-md-mobile": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-sm": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.01em", "fontWeight": "400" }],
+                        "label-mono": ["13px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "code-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #080A0F; color: #e2e2e9; }
+        .glass-panel {
+            background: rgba(22, 28, 40, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .neon-glow {
+            filter: drop-shadow(0 0 4px #4edea3);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-margin-mobile md:p-margin-desktop font-body-md text-body-md relative overflow-hidden">
+<!-- Modal Container -->
+<div class="glass-panel w-full max-w-2xl rounded-xl overflow-hidden shadow-2xl relative z-10 flex flex-col">
+<!-- Header -->
+<div class="p-lg border-b border-white/10 flex justify-between items-center bg-surface-container-highest/50">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Trust Badge Configuration</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-sm">Generate and embed the VicoGuard verification widget.</p>
+</div>
+<button class="p-sm rounded hover:bg-white/5 transition-colors text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-lg flex flex-col md:flex-row gap-xl">
+<!-- Preview Section -->
+<div class="flex-1 flex flex-col items-center justify-center bg-surface-container-lowest/50 rounded-lg border border-white/5 p-xl relative group">
+<div class="absolute top-sm right-sm text-on-surface-variant/50 font-label-mono text-label-mono text-[10px]">PREVIEW</div>
+<!-- Badge Display (Default Dark) -->
+<div class="flex items-center gap-sm bg-[#0F131C] border border-white/10 rounded-full px-md py-sm shadow-lg transition-all duration-300" id="badge-preview">
+<span class="material-symbols-outlined text-primary text-[20px] neon-glow">security</span>
+<div class="flex flex-col">
+<span class="font-label-mono text-label-mono text-[10px] leading-tight text-on-surface">VicoGuard Verified</span>
+<span class="font-label-mono text-label-mono text-[9px] leading-tight text-primary">Secure 2026</span>
+</div>
+</div>
+</div>
+<!-- Controls Section -->
+<div class="flex-1 flex flex-col gap-lg">
+<!-- Style Toggle -->
+<div>
+<label class="block font-label-mono text-label-mono text-on-surface-variant mb-sm">Badge Style</label>
+<div class="flex gap-sm bg-surface-container-low p-sm rounded-lg border border-white/5">
+<button class="flex-1 py-xs px-sm rounded bg-surface-variant text-on-surface font-label-mono text-[11px] transition-colors hover:bg-white/10 border border-white/10" onclick="setBadgeStyle('dark')">Dark</button>
+<button class="flex-1 py-xs px-sm rounded text-on-surface-variant font-label-mono text-[11px] transition-colors hover:bg-white/10" onclick="setBadgeStyle('neon')">Neon</button>
+<button class="flex-1 py-xs px-sm rounded text-on-surface-variant font-label-mono text-[11px] transition-colors hover:bg-white/10" onclick="setBadgeStyle('minimal')">Minimal</button>
+</div>
+</div>
+<!-- Code Snippet -->
+<div>
+<div class="flex justify-between items-center mb-sm">
+<label class="block font-label-mono text-label-mono text-on-surface-variant">Embed Code</label>
+<button class="text-primary hover:text-primary-fixed flex items-center gap-xs font-label-mono text-[11px] transition-colors">
+<span class="material-symbols-outlined text-[14px]">content_copy</span> Copy
+                        </button>
+</div>
+<div class="bg-[#080A0F] border border-white/10 rounded-lg p-sm relative overflow-x-auto">
+<pre class="font-code-sm text-code-sm text-on-surface-variant leading-relaxed"><code><span class="text-secondary">&lt;div</span> <span class="text-tertiary">id</span>=<span class="text-primary-container">"vg-badge"</span><span class="text-secondary">&gt;&lt;/div&gt;</span>
+<span class="text-secondary">&lt;script</span> <span class="text-tertiary">src</span>=<span class="text-primary-container">"https://api.vicoguard.ai/embed.js"</span><span class="text-secondary">&gt;&lt;/script&gt;</span>
+<span class="text-secondary">&lt;script&gt;</span>
+  <span class="text-surface-tint">VicoGuard</span>.init({
+    target: <span class="text-primary-container">'#vg-badge'</span>,
+    theme: <span class="text-primary-container">'dark'</span>
+  });
+<span class="text-secondary">&lt;/script&gt;</span></code></pre>
+</div>
+</div>
+<!-- Action -->
+<div class="mt-auto pt-md">
+<button class="w-full bg-primary-container hover:bg-primary-fixed text-on-primary font-label-mono text-label-mono py-sm rounded transition-colors flex items-center justify-center gap-sm font-bold">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+                        Save Configuration
+                    </button>
+</div>
+</div>
+</div>
+</div>
+<script>
+        function setBadgeStyle(style) {
+            const preview = document.getElementById('badge-preview');
+            // Reset classes
+            preview.className = 'flex items-center gap-sm rounded-full px-md py-sm shadow-lg transition-all duration-300';
+            
+            // Add style specific classes
+            if(style === 'dark') {
+                 preview.classList.add('bg-[#0F131C]', 'border', 'border-white/10');
+            } else if (style === 'neon') {
+                 preview.classList.add('bg-[#080A0F]', 'border', 'border-primary/50', 'shadow-[0_0_15px_rgba(78,222,163,0.2)]');
+            } else if (style === 'minimal') {
+                 preview.classList.add('bg-transparent', 'border', 'border-white/5');
+            }
+
+            // Update buttons visually (simple toggle for demo)
+            const buttons = document.querySelectorAll('.bg-surface-container-low button');
+            buttons.forEach(btn => {
+                if(btn.textContent.toLowerCase() === style) {
+                    btn.classList.add('bg-surface-variant', 'text-on-surface', 'border', 'border-white/10');
+                    btn.classList.remove('text-on-surface-variant');
+                } else {
+                    btn.classList.remove('bg-surface-variant', 'text-on-surface', 'border', 'border-white/10');
+                    btn.classList.add('text-on-surface-variant');
+                }
+            });
+        }
+    </script>
+</body></html>
