@@ -1,0 +1,14 @@
+agente: claude-code-sesion
+acciones_permitidas:
+  - read
+  - write
+  - commit
+  - test
+acciones_prohibidas:
+  - "push --force"
+  - "git reset --hard"
+  - "rm -rf"
+  - "git clean -f"
+destinos_prohibidos:
+  - main
+  - produccion

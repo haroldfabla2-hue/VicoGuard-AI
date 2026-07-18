@@ -26,13 +26,25 @@ class OpenAILLMClient:
     Implementa el contrato: .chat(system_prompt, user_message, temperature, max_tokens) -> str
     """
 
-    def __init__(self, model: str = None, api_key: str = None):
+    def __init__(self, model: str = None, api_key: str = None, base_url: str = None):
+        """
+        Args:
+            model: nombre del modelo a usar (default depende del proveedor detectado).
+            api_key: API key explicita. Si no viene, cae a OPENAI_API_KEY/env.
+            base_url: endpoint OpenAI-compatible custom (ej: GLM Coding Plan de Z.ai).
+                Si viene, tiene prioridad sobre la deteccion automatica Gemini/OpenAI
+                y se usa tal cual con la api_key resuelta.
+        """
         from openai import OpenAI
-        
+
         openai_key = api_key or os.getenv("OPENAI_API_KEY")
         gemini_key = os.getenv("GEMINI_API_KEY")
 
-        if gemini_key:
+        if base_url:
+            self.model = model or "gpt-4o"
+            self.client = OpenAI(api_key=openai_key, base_url=base_url)
+            logger.info(f"[LLM] Inicializado adaptador custom (base_url={base_url}, model={self.model})")
+        elif gemini_key:
             self.model = model or "gemini-1.5-flash"
             self.client = OpenAI(
                 api_key=gemini_key,
