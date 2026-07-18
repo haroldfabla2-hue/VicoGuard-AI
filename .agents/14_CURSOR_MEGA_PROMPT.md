@@ -253,9 +253,19 @@ Request:
 ═══════════════════════════════════════════════════
 
 ```env
+# --- OpenAI (Motor de IA) ---
 OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# --- Google Gemini (Alternativa Gratuita) ---
+# Si se provee, el backend usará automáticamente Gemini 1.5 Flash
+# sin requerir OpenAI. Obtén tu clave en Google AI Studio.
+GEMINI_API_KEY=AIzaSyxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# --- Telegram (Notificaciones) ---
 TELEGRAM_BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
 TELEGRAM_CHAT_ID=123456789
+
+# --- Servidor API ---
 API_HOST=0.0.0.0
 API_PORT=8000
 ```

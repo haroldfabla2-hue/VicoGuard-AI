@@ -12,8 +12,19 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Soporta OpenAI o Google AI (cambiar el base_url si usas Gemini)
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Auto-detect client provider: Gemini vs OpenAI
+openai_key = os.getenv("OPENAI_API_KEY")
+gemini_key = os.getenv("GEMINI_API_KEY")
+
+if gemini_key:
+    client = OpenAI(
+        api_key=gemini_key,
+        base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+    )
+    DEFAULT_MODEL = "gemini-1.5-flash"
+else:
+    client = OpenAI(api_key=openai_key)
+    DEFAULT_MODEL = "gpt-4o"
 
 # --- System Prompts (copiados de 7_AI_SYSTEM_PROMPTS.md) ---
 SYSTEM_PROMPT_SCAN_ANALYSIS = """
@@ -82,7 +93,7 @@ Responde ÚNICAMENTE en formato JSON válido:
 def analyze_scan_results(scan_results: dict) -> dict:
     """Envía resultados del escaneo al LLM y devuelve análisis en lenguaje natural."""
     response = client.chat.completions.create(
-        model="gpt-4o",  # Cambiar a "gemini-1.5-pro" si usan Google AI
+        model=DEFAULT_MODEL,
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT_SCAN_ANALYSIS},
             {"role": "user", "content": f"Analiza estos resultados de escaneo:\n\n{json.dumps(scan_results, indent=2, ensure_ascii=False)}"}
@@ -97,7 +108,7 @@ def analyze_scan_results(scan_results: dict) -> dict:
 def correlate_server_logs(log_text: str) -> dict:
     """Envía logs de servidor al LLM y devuelve correlación inteligente."""
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model=DEFAULT_MODEL,
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT_LOG_CORRELATION},
             {"role": "user", "content": f"Correlaciona estos logs de servidor:\n\n{log_text}"}
