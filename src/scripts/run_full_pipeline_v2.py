@@ -30,6 +30,7 @@ from scanner.services.cognitive_brain import (
     CognitiveSecurityBrain, ThreatType, ThreatSeverity
 )
 from scanner.services.agent_team import SecurityTeamOrchestrator
+from scanner.services.llm_client import OpenAILLMClient
 
 
 def classify_threat(scan_results: dict) -> tuple:
@@ -66,7 +67,20 @@ def run_cognitive_pipeline(target_url: str, db_path: str = "vicoguard_brain.db")
 
     # Inicializar componentes
     brain = CognitiveSecurityBrain(db_path)
-    team = SecurityTeamOrchestrator(llm_client=None)  # Mock para demo
+
+    # Conectar agentes al LLM real si hay API key, sino usar mock
+    llm_client = None
+    try:
+        import os
+        if os.getenv("OPENAI_API_KEY"):
+            llm_client = OpenAILLMClient()
+            print("  [LLM] Agentes conectados a OpenAI GPT-4o")
+        else:
+            print("  [LLM] Sin API key → modo mock (demo)")
+    except Exception as e:
+        print(f"  [LLM] Fallback a mock: {e}")
+
+    team = SecurityTeamOrchestrator(llm_client=llm_client)
     dispatcher = NotificationDispatcher()
 
     pipeline_start = time.time()
@@ -153,7 +167,17 @@ def run_cognitive_pipeline(target_url: str, db_path: str = "vicoguard_brain.db")
     print(f"  Mensaje Telegram:")
     print(f"  {ai_analysis.get('telegram_message', 'N/A')[:200]}")
 
-    # En produccion: dispatcher.dispatch(ai_analysis, channels=["telegram"])
+    # Enviar alerta por Telegram
+    try:
+        if ai_analysis.get("telegram_message"):
+            telegram = dispatcher.telegram
+            telegram._send_message(ai_analysis["telegram_message"])
+            print("  ✅ Alerta enviada por Telegram")
+        else:
+            dispatcher.dispatch(ai_analysis, channels=["telegram"])
+            print("  ✅ Alerta despachada por Telegram")
+    except Exception as e:
+        print(f"  ⚠️ Error al enviar Telegram (no critico): {e}")
 
     # ━━━ PASO 5: Consolidar cerebro ━━━
     print(f"\n[DREAM] Ejecutando Dreamer Engine...")

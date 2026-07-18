@@ -1,6 +1,6 @@
-django>=4.2
 requests>=2.31
 beautifulsoup4>=4.12
 openai>=1.30
-python-telegram-bot>=21.0
 python-dotenv>=1.0
+fastapi>=0.111
+uvicorn[standard]>=0.30
