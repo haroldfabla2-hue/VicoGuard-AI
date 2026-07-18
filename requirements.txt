@@ -9,5 +9,6 @@ pyyaml
 filelock==3.31.0
 pydantic
 httpx
+requests
 pytest
 anthropic

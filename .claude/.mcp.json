@@ -5,6 +5,12 @@
       "args": [
         "E:\\PROYECTOS_JADEN\\10_Hackatones\\PROYECTO INVESTIGACION\\wasp\\centinela\\guards\\governance_guard\\mcp_governor_server.py"
       ]
+    },
+    "vicoguard-redteam": {
+      "command": "/home/project/hackathones/VicoGuard-AI/.venv/bin/python",
+      "args": [
+        "/home/project/hackathones/VicoGuard-AI/redteam/mcp_redteam_server.py"
+      ]
     }
   }
 }
