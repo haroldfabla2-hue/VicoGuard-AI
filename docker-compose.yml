@@ -1,0 +1,81 @@
+# ═══════════════════════════════════════════════════════════
+# VicoGuard AI — docker-compose.yml (1-command deploy)
+# ═══════════════════════════════════════════════════════════
+# Usage:
+#   1. cp .env.example .env  && edit credentials
+#   2. docker-compose up -d
+#   3. Open http://localhost:8000/ui/login
+# ═══════════════════════════════════════════════════════════
+
+version: "3.9"
+
+services:
+  vicoguard:
+    build:
+      context: .
+      target: hub
+    container_name: vicoguard-ai
+    ports:
+      - "${VG_PORT:-8000}:8000"
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://vicoguard-redis:6379/1
+    volumes:
+      - vicoguard_data:/app/src/data
+      - vicoguard_db:/app/src
+    depends_on:
+      vicoguard-redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - vicoguard-net
+
+  vicoguard-redis:
+    image: redis:7-alpine
+    container_name: vicoguard-redis
+    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru
+    volumes:
+      - vicoguard_redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - vicoguard-net
+
+  # Optional: Caddy reverse proxy with auto-HTTPS
+  # Uncomment if deploying to production with a domain
+  # vicoguard-proxy:
+  #   image: caddy:2-alpine
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./Caddyfile:/etc/caddy/Caddyfile
+  #     - caddy_data:/data
+  #     - caddy_config:/config
+  #   depends_on:
+  #     - vicoguard
+  #   restart: unless-stopped
+  #   networks:
+  #     - vicoguard-net
+
+volumes:
+  vicoguard_data:
+  vicoguard_db:
+  vicoguard_redis:
+  # caddy_data:
+  # caddy_config:
+
+networks:
+  vicoguard-net:
+    driver: bridge

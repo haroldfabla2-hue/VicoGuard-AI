@@ -32,18 +32,16 @@ import os
 import httpx
 
 from centinela.ledger import hash_chain
+from centinela.interpreter.llm_provider import get_provider, LLMProvider
 
 DEFAULT_LEDGER_PATH = hash_chain.DEFAULT_LEDGER_PATH
 
-# Confirmed working 2026-07-18 against the team's real Z.ai Coding Plan key.
-# Override via env vars if the key/plan ever changes.
-MODEL = os.environ.get("ANTHROPIC_MODEL", "glm-4.5")
+# Legacy compat: keep MODEL and endpoint as module-level constants for existing
+# code that references them, but the actual calls now go through the provider.
+MODEL = os.environ.get("ZAI_MODEL", "glm-5.2")
 GLM_CODING_ENDPOINT = (
     os.environ.get("GLM_CODING_BASE_URL") or "https://api.z.ai/api/coding/paas/v4"
 ) + "/chat/completions"
-# GLM-4.5 emits chain-of-thought (reasoning_content) before its answer,
-# which adds real latency -- 30s wasn't enough in testing and caused a
-# ReadTimeout even on a successful, in-progress request.
 _LLM_TIMEOUT_SECONDS = 90
 
 _RECENT_WINDOW = 20
@@ -64,31 +62,53 @@ _SEVERITY_LABEL_ES = {
 # ---------------------------------------------------------------------------
 
 def _resolve_api_key(api_key: str | None) -> str | None:
-    """Prefer an explicitly passed key; fall back to the env var; else None."""
-    return api_key or os.environ.get("ANTHROPIC_API_KEY") or None
+    """Prefer an explicitly passed key; fall back to env vars; else None.
 
-
-def _call_glm(system: str, user: str, api_key: str, max_tokens: int) -> str:
-    """Call the GLM-4.5 Coding Plan endpoint (OpenAI chat/completions shape)
-    and return the assistant's text. Raises on any HTTP/network error --
-    callers are expected to catch and fall back to the heuristic mode.
+    Supports both the new ZAI_CODING_PLAN_KEY and the legacy ANTHROPIC_API_KEY
+    (which was always a Z.ai key despite the confusing name).
     """
-    response = httpx.post(
-        GLM_CODING_ENDPOINT,
-        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-        json={
-            "model": MODEL,
-            "messages": [
-                {"role": "system", "content": system},
-                {"role": "user", "content": user},
-            ],
-            "max_tokens": max_tokens,
-        },
-        timeout=_LLM_TIMEOUT_SECONDS,
+    return (
+        api_key
+        or os.environ.get("ZAI_CODING_PLAN_KEY")
+        or os.environ.get("ANTHROPIC_API_KEY")  # legacy compat
+        or None
     )
-    response.raise_for_status()
-    data = response.json()
-    return data["choices"][0]["message"]["content"].strip()
+
+
+def _call_llm(system: str, user: str, api_key: str | None = None, max_tokens: int = 600) -> str:
+    """Call the best available LLM provider and return the assistant's text.
+
+    Uses the Provider abstraction (Strategy Pattern) to auto-select between
+    Z.ai GLM-5.2, OpenAI GPT-4o, or Anthropic Claude based on which credentials
+    are available. Falls back to direct GLM call if api_key is passed explicitly
+    (backward compatibility for existing callers).
+
+    Raises on any HTTP/network error — callers catch and fall back to heuristic.
+    """
+    # If an explicit key is passed, use the direct GLM endpoint (legacy compat)
+    if api_key:
+        response = httpx.post(
+            GLM_CODING_ENDPOINT,
+            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+            json={
+                "model": MODEL,
+                "messages": [
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user},
+                ],
+                "max_tokens": max_tokens,
+            },
+            timeout=_LLM_TIMEOUT_SECONDS,
+        )
+        response.raise_for_status()
+        data = response.json()
+        return data["choices"][0]["message"]["content"].strip()
+
+    # Use provider abstraction (auto-selects best available)
+    provider = get_provider()
+    if provider is None:
+        raise RuntimeError("No LLM provider configured")
+    return provider.chat(system=system, user=user, max_tokens=max_tokens, timeout=_LLM_TIMEOUT_SECONDS)
 
 
 def _findings(entries: list) -> list:
@@ -239,7 +259,7 @@ def _llm_summarize(entries: list, api_key: str) -> str:
     )
     user = f"Hallazgos y decisiones recientes del ledger:\n\n{context}\n\nGenerá el mensaje."
 
-    text = _call_glm(system, user, api_key, max_tokens=600)
+    text = _call_llm(system, user, api_key, max_tokens=600)
     return text or _heuristic_summarize(entries)
 
 
@@ -356,7 +376,7 @@ def _llm_explain(entry: dict, api_key: str) -> str:
     )
     user = f"Elemento del ledger a explicar:\n{context}"
 
-    text = _call_glm(system, user, api_key, max_tokens=400)
+    text = _call_llm(system, user, api_key, max_tokens=400)
     return text or _heuristic_explain(entry)
 
 
@@ -395,7 +415,7 @@ def answer_question(
             "ese contexto, decilo en vez de inventar."
         )
         user = f"Contexto del ledger (hallazgos y decisiones recientes):\n{context}\n\nPregunta: {question}"
-        text = _call_glm(system, user, resolved_key, max_tokens=500)
+        text = _call_llm(system, user, resolved_key, max_tokens=500)
         return text or "No pude generar una respuesta para eso."
     except Exception as exc:  # pragma: no cover - network/auth dependent
         return (
